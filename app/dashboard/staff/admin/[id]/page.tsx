@@ -1,0 +1,45 @@
+"use client"
+
+import { useState } from "react"
+import { ProfileForm } from "@/components/staff/profile-form"
+import { SuccessDialog } from "@/components/staff/success-dialog"
+import type { StaffProfile } from "@/types/staff"
+
+const MOCK_PROFILE = {
+  id: "RX-001",
+  name: "Zainab Yusuf",
+  role: "Operations Support",
+  emailAddress: "zainab@resqx.com",
+  contactNumber: "08123456789",
+  address: "Gwarinpa, Abuja",
+  startDate: "January 31, 2025",
+  endDate: "Till Date",
+  payment: {
+    bankName: "Opay",
+    accountNumber: "12345678901",
+    frequency: "Monthly",
+  },
+  assignedItems: ["Enter List"] as string[],
+} as const
+
+export default function AdminProfilePage() {
+  const [mode, setMode] = useState<"view" | "edit">("view")
+  const [showSuccess, setShowSuccess] = useState(false)
+
+  const handleSave = async (profile: StaffProfile) => {
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    console.log(profile) // Use the profile parameter
+    setMode("view")
+    setShowSuccess(true)
+  }
+
+  return (
+    <>
+      <ProfileForm profile={MOCK_PROFILE} type="admin" mode={mode} onEdit={() => setMode("edit")} onSave={handleSave} />
+
+      <SuccessDialog open={showSuccess} onOpenChange={setShowSuccess} title="Profile updated successfully!" />
+    </>
+  )
+}
+
