@@ -106,7 +106,7 @@ export function ServicesTable() {
           
               if (!Icon) {
                 console.error(`No icon found for service: ${service.name}`);
-                return null; // Skip rendering this row if icon is undefined
+                return null; // Skip rendering this row if icon is undefined 
               }
     
 
