@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -8,7 +9,8 @@ import { Input } from "@/components/ui/input"
 import { AuthService } from "@/services/auth.service"
 import type { AuthState } from "@/types/auth"
 
-export default function VerifyEmailPage() {
+// Wrap the main component with Suspense
+function VerifyEmailContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const email = searchParams.get("email")
@@ -46,7 +48,9 @@ export default function VerifyEmailPage() {
           </div>
 
           <h1 className="text-3xl font-semibold text-center mb-2">Verify Your Email</h1>
-          <p className="text-center text-gray-500 mb-8">Please enter the verification code sent to {email}</p>
+          <p className="text-center text-gray-500 mb-8">
+            Please enter the verification code sent to {email}
+          </p>
 
           <form onSubmit={handleSubmit} className="w-full space-y-6">
             <Input
@@ -74,3 +78,10 @@ export default function VerifyEmailPage() {
   )
 }
 
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <VerifyEmailContent />
+    </Suspense>
+  )
+}
