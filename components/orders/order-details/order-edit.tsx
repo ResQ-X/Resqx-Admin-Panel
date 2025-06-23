@@ -1,59 +1,67 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { ArrowLeft } from "lucide-react"
-import Image from "next/image"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
+import Image from "next/image";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { OrderSuccessDialog } from "./order-success-dialog"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { OrderSuccessDialog } from "./order-success-dialog";
 // import type { OrderDetails } from "@/types/order"
 
 interface OrderEditProps {
-  order: OrderDetails
+  order: OrderDetails;
 }
 
 interface Responder {
-  id: string
-  name: string
-  status: string
-  eta: string
-  role: string
-  currentLocation: string
+  id: string;
+  name: string;
+  status: string;
+  eta: string;
+  role: string;
+  currentLocation: string;
 }
 
 interface OrderDetails {
-  id: string
-  status: string
-  responder: Responder
-  customer: {
-    name: string
-    contact: string
-    email: string
-  }
+  id: string;
+  status: string;
+  responder: Responder;
+  requester: {
+    name: string;
+    contact: string;
+    email: string;
+  };
   location: {
-    pickup: string
-    dropoff: string
-  }
+    pickup: string;
+    dropoff: string;
+  };
   activities: {
-    time: string
-    activity: string
-    note: string
-  }[]
+    time: string;
+    activity: string;
+    note: string;
+  }[];
 }
 
 export function OrderEdit({ order: initialOrder }: OrderEditProps) {
-  const router = useRouter()
-  const [order, setOrder] = useState(initialOrder)
-  const [showSuccess, setShowSuccess] = useState(false)
+  const router = useRouter();
+  const [order, setOrder] = useState(initialOrder);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  console.log("Order Edit Component Rendered", order);
 
   const handleSave = async () => {
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    setShowSuccess(true)
-  }
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    setShowSuccess(true);
+  };
 
   return (
     <div className="space-y-8">
@@ -77,20 +85,26 @@ export function OrderEdit({ order: initialOrder }: OrderEditProps) {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <label className="text-sm text-gray-500">Assign/Reassign Responder</label>
-          <Select defaultValue={order.responder.id}>
+          <label className="text-sm text-gray-500">
+            Assign/Reassign Responder
+          </label>
+          <Select defaultValue={order?.responder?.id}>
             <SelectTrigger>
               <SelectValue placeholder="Select Responder" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={order.responder.id}>{order.responder.name}</SelectItem>
+              <SelectItem value={order?.responder?.id}>
+                {order?.responder?.name}
+              </SelectItem>
               <SelectItem value="FR-046">John Doe</SelectItem>
               <SelectItem value="FR-047">Jane Smith</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div className="space-y-2">
-          <label className="text-sm text-gray-500">Update Incident Status</label>
+          <label className="text-sm text-gray-500">
+            Update Incident Status
+          </label>
           <Select defaultValue={order.status}>
             <SelectTrigger>
               <SelectValue placeholder="Select Status" />
@@ -111,11 +125,11 @@ export function OrderEdit({ order: initialOrder }: OrderEditProps) {
           <div className="space-y-2">
             <label className="text-sm text-gray-500">Customer Name</label>
             <Input
-              value={order.customer.name}
+              value={order.requester.name}
               onChange={(e) =>
                 setOrder({
                   ...order,
-                  customer: { ...order.customer, name: e.target.value },
+                  requester: { ...order.requester, name: e.target.value },
                 })
               }
             />
@@ -123,11 +137,11 @@ export function OrderEdit({ order: initialOrder }: OrderEditProps) {
           <div className="space-y-2">
             <label className="text-sm text-gray-500">Contact Number</label>
             <Input
-              value={order.customer.contact}
+              value={order.requester.contact}
               onChange={(e) =>
                 setOrder({
                   ...order,
-                  customer: { ...order.customer, contact: e.target.value },
+                  requester: { ...order.requester, contact: e.target.value },
                 })
               }
             />
@@ -135,11 +149,11 @@ export function OrderEdit({ order: initialOrder }: OrderEditProps) {
           <div className="space-y-2">
             <label className="text-sm text-gray-500">Email Address</label>
             <Input
-              value={order.customer.email}
+              value={order.requester.email}
               onChange={(e) =>
                 setOrder({
                   ...order,
-                  customer: { ...order.customer, email: e.target.value },
+                  requester: { ...order.requester, email: e.target.value },
                 })
               }
             />
@@ -154,7 +168,8 @@ export function OrderEdit({ order: initialOrder }: OrderEditProps) {
           <div className="space-y-2">
             <label className="text-sm text-gray-500">Pick Up Location</label>
             <Input
-              value={order.location.pickup}
+              // value={order.location.pickup}
+              value={order.from_address || order.location.pickup}
               onChange={(e) =>
                 setOrder({
                   ...order,
@@ -166,7 +181,7 @@ export function OrderEdit({ order: initialOrder }: OrderEditProps) {
           <div className="space-y-2">
             <label className="text-sm text-gray-500">Drop Off Location</label>
             <Input
-              value={order.location.dropoff}
+              value={order?.location?.dropoff}
               onChange={(e) =>
                 setOrder({
                   ...order,
@@ -176,7 +191,12 @@ export function OrderEdit({ order: initialOrder }: OrderEditProps) {
             />
           </div>
           <div className="relative h-[200px] rounded-lg overflow-hidden">
-            <Image src="/map-placeholder.png" alt="Location Map" fill className="object-cover" />
+            <Image
+              src="/map-placeholder.png"
+              alt="Location Map"
+              fill
+              className="object-cover"
+            />
           </div>
         </div>
       </div>
@@ -187,22 +207,28 @@ export function OrderEdit({ order: initialOrder }: OrderEditProps) {
         <div className="flex items-center gap-6 mb-4">
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-500">Status:</span>
-            <span className="text-yellow-600">{order.responder.status}</span>
+            <span className="text-yellow-600">{order?.responder?.status}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-500">Estimated Arrival Time:</span>
-            <span>{order.responder.eta}</span>
+            <span className="text-sm text-gray-500">
+              Estimated Arrival Time:
+            </span>
+            <span>{order?.responder?.eta}</span>
           </div>
         </div>
         <div className="grid grid-cols-3 gap-4">
           <div className="space-y-2">
             <label className="text-sm text-gray-500">Assigned To</label>
-            <Input value={`${order.responder.name} | ${order.responder.id}`} disabled className="bg-white" />
+            <Input
+              value={`${order?.responder?.name} | ${order?.responder?.id}`}
+              disabled
+              className="bg-white"
+            />
           </div>
           <div className="space-y-2">
             <label className="text-sm text-gray-500">Role</label>
             <Input
-              value={order.responder.role}
+              value={order?.responder?.role}
               onChange={(e) =>
                 setOrder({
                   ...order,
@@ -214,11 +240,14 @@ export function OrderEdit({ order: initialOrder }: OrderEditProps) {
           <div className="space-y-2">
             <label className="text-sm text-gray-500">Current Location</label>
             <Input
-              value={order.responder.currentLocation}
+              value={order?.responder?.currentLocation}
               onChange={(e) =>
                 setOrder({
                   ...order,
-                  responder: { ...order.responder, currentLocation: e.target.value },
+                  responder: {
+                    ...order.responder,
+                    currentLocation: e.target.value,
+                  },
                 })
               }
             />
@@ -227,15 +256,21 @@ export function OrderEdit({ order: initialOrder }: OrderEditProps) {
       </div>
 
       {/* Activity Log */}
-      <div className="space-y-4">
+      {/* <div className="space-y-4">
         <h2 className="text-xl font-semibold">Activity Log</h2>
         <div className="border rounded-lg">
           <table className="w-full">
             <thead>
               <tr className="border-b">
-                <th className="text-left p-4 text-sm font-medium text-gray-500">Time</th>
-                <th className="text-left p-4 text-sm font-medium text-gray-500">Activity</th>
-                <th className="text-left p-4 text-sm font-medium text-gray-500">Note/ Performed By</th>
+                <th className="text-left p-4 text-sm font-medium text-gray-500">
+                  Time
+                </th>
+                <th className="text-left p-4 text-sm font-medium text-gray-500">
+                  Activity
+                </th>
+                <th className="text-left p-4 text-sm font-medium text-gray-500">
+                  Note/ Performed By
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -249,7 +284,7 @@ export function OrderEdit({ order: initialOrder }: OrderEditProps) {
             </tbody>
           </table>
         </div>
-      </div>
+      </div> */}
 
       <div className="flex justify-end">
         <Button onClick={handleSave} className="bg-orange hover:bg-orange/90">
@@ -259,6 +294,5 @@ export function OrderEdit({ order: initialOrder }: OrderEditProps) {
 
       <OrderSuccessDialog open={showSuccess} onOpenChange={setShowSuccess} />
     </div>
-  )
+  );
 }
-

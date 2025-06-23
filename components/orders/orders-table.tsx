@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -24,8 +23,27 @@ const statusStyles = {
   UNASSIGNED: "bg-[#535353] bg-opacity-30",
 };
 
+const MOCK_ORDERS = [
+  {
+    id: "ord-12345",
+    requester: { name: "John Doe" },
+    from_address: "123 Main St, City, Country",
+    created_at: "2023-01-12T10:00:00Z",
+    assigned_first_responder: { id: "res-001" },
+    status: "PENDING",
+  },
+  {
+    id: "ord-67890",
+    requester: { name: "Jane Smith" },
+    from_address: "456 Elm St, City, Country",
+    created_at: "2023-01-12T11:00:00Z",
+    assigned_first_responder: { id: "res-002" },
+    status: "RESOLVED",
+  },
+];
+
 export function OrdersTable() {
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<typeof MOCK_ORDERS>(MOCK_ORDERS);
   const [createOrderDialogOpen, setCreateOrderDialogOpen] = useState(false);
   const [createServiceDialogOpen, setCreateServiceDialogOpen] = useState(false);
 
@@ -33,7 +51,8 @@ export function OrdersTable() {
     const fetchOrders = async () => {
       try {
         const response = await axiosInstance.get("/admin/get_all_orders");
-        setOrders(response.data);
+        // setOrders(response.data);
+        setOrders(response.data.data);
       } catch (error) {
         console.error("Error fetching orders:", error);
       }
@@ -41,6 +60,8 @@ export function OrdersTable() {
 
     fetchOrders();
   }, []);
+
+  console.log("Orders:", orders);
 
   const shortenId = (id: string) => {
     return `ord-${id.split("-")[0].substring(0, 5)}`;
@@ -84,10 +105,12 @@ export function OrdersTable() {
                   {shortenId(order.id)}
                 </Link>
               </TableCell>
-              <TableCell>{order.user.name}</TableCell>
+              <TableCell>{order.requester.name}</TableCell>
               <TableCell>{order.from_address}</TableCell>
-              <TableCell>{new Date(order.created_at).toLocaleTimeString()}</TableCell>
-              <TableCell>{order.professional.id}</TableCell>
+              <TableCell>
+                {new Date(order.created_at).toLocaleTimeString()}
+              </TableCell>
+              <TableCell>{order?.assigned_first_responder?.id}</TableCell>
               <TableCell>
                 <span
                   className={cn(
@@ -96,7 +119,8 @@ export function OrdersTable() {
                 >
                   <div
                     className={`w-[12px] h-[12px] rounded-full ${
-                      statusStyles[order.status]
+                      // statusStyles[order.status]
+                      statusStyles[order.status] || "bg-gray-300"
                     }`}
                   />
                   {order.status}

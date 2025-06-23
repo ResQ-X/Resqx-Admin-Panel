@@ -5,7 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { OrderDetails } from "@/types/order";
+// import type { OrderDetails } from "@/types/order";
 
 interface OrderViewProps {
   order: any;
@@ -41,15 +41,27 @@ export function OrderView({ order, onEdit }: OrderViewProps) {
         <div className="grid grid-cols-3 gap-4">
           <div className="space-y-2">
             <label className="text-sm text-gray-500">Customer Name</label>
-            <Input value={order?.user?.name || "N/A"} disabled className="bg-white" />
+            <Input
+              value={order?.user?.name || "N/A"}
+              disabled
+              className="bg-white"
+            />
           </div>
           <div className="space-y-2">
             <label className="text-sm text-gray-500">Contact Number</label>
-            <Input value={order?.user?.phone || "N/A"} disabled className="bg-white" />
+            <Input
+              value={order?.user?.phone || "N/A"}
+              disabled
+              className="bg-white"
+            />
           </div>
           <div className="space-y-2">
             <label className="text-sm text-gray-500">Email Address</label>
-            <Input value={order?.user?.email || "N/A"} disabled className="bg-white" />
+            <Input
+              value={order?.user?.email || "N/A"}
+              disabled
+              className="bg-white"
+            />
           </div>
         </div>
       </div>
@@ -60,14 +72,27 @@ export function OrderView({ order, onEdit }: OrderViewProps) {
         <div className="grid grid-cols-3 gap-4">
           <div className="space-y-2">
             <label className="text-sm text-gray-500">Pick Up Location</label>
-            <Input value={order?.from_address || "N/A"} disabled className="bg-white" />
+            <Input
+              value={order?.from_address || "N/A"}
+              disabled
+              className="bg-white"
+            />
           </div>
           <div className="space-y-2">
             <label className="text-sm text-gray-500">Drop Off Location</label>
-            <Input value={order?.to_address || "N/A"} disabled className="bg-white" />
+            <Input
+              value={order?.to_address || "N/A"}
+              disabled
+              className="bg-white"
+            />
           </div>
           <div className="relative h-[200px] rounded-lg overflow-hidden">
-            <Image src="/map-placeholder.png" alt="Location Map" fill className="object-cover" />
+            <Image
+              src="/map-placeholder.png"
+              alt="Location Map"
+              fill
+              className="object-cover"
+            />
           </div>
         </div>
       </div>
@@ -85,7 +110,9 @@ export function OrderView({ order, onEdit }: OrderViewProps) {
           <div className="space-y-2">
             <label className="text-sm text-gray-500">Assigned To</label>
             <Input
-              value={`${order?.professional?.name || "N/A"} | ${order?.professional?.id || "N/A"}`}
+              value={`${order?.professional?.name || "N/A"} | ${
+                order?.professional?.id || "N/A"
+              }`}
               disabled
               className="bg-white"
             />
@@ -104,18 +131,26 @@ export function OrderView({ order, onEdit }: OrderViewProps) {
       {/* Activity Log */}
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Activity Log</h2>
-        <div className="border rounded-lg">
+        <div className=" rounded-lg">
           <table className="w-full">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left p-4 text-sm font-medium text-gray-500">Time</th>
-                <th className="text-left p-4 text-sm font-medium text-gray-500">Activity</th>
-                <th className="text-left p-4 text-sm font-medium text-gray-500">Note/ Performed By</th>
+            <thead className="bg-[#FAF8F5] rounded-xl">
+              <tr className="">
+                <th className="text-left p-4 text-sm font-medium text-gray-500">
+                  Time
+                </th>
+                <th className="text-left p-4 text-sm font-medium text-gray-500">
+                  Activity
+                </th>
+                <th className="text-left p-4 text-sm font-medium text-gray-500">
+                  Note/ Performed By
+                </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="border-b">
               <tr className="border-b last:border-0">
-                <td className="p-4 text-sm">{new Date(order?.created_at).toLocaleString()}</td>
+                <td className="p-4 text-sm">
+                  {new Date(order?.created_at).toLocaleString()}
+                </td>
                 <td className="p-4 text-sm">Order Created</td>
                 <td className="p-4 text-sm">System</td>
               </tr>
@@ -128,7 +163,10 @@ export function OrderView({ order, onEdit }: OrderViewProps) {
         <Button onClick={onEdit} className="bg-orange hover:bg-orange/90">
           Edit Order
         </Button>
-        <Button variant="outline" className="border-orange text-orange hover:bg-orange/10">
+        <Button
+          variant="outline"
+          className="border-orange text-orange hover:bg-orange/10"
+        >
           Cancel Order
         </Button>
       </div>
