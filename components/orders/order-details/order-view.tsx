@@ -88,11 +88,19 @@ export function OrderView({ order, onEdit }: OrderViewProps) {
               className="bg-white"
             />
           </div>
+          {/* <div className="relative h-[200px] rounded-lg overflow-hidden">
+            <Image
+              src="/map-placeholder.png"
+              alt="Location Map"
+              fill
+              className="object-cover"
+            />
+          </div> */}
 
-          <div className="relative h-[200px] rounded-lg overflow-hidden">
+          <div className="h-[200px] rounded-lg overflow-hidden w-full pt-8">
             <Button
               variant="outline"
-              className="absolute top-2 right-2 z-10 bg-white text-gray-700 hover:bg-gray-100"
+              // className="absolute top-2 right-2 z-10 bg-white text-gray-700 hover:bg-gray-100"
               onClick={() =>
                 window.open(
                   `https://www.google.com/maps/search/?api=1&query=${order.from_latitude},${order.from_longitude}`,
