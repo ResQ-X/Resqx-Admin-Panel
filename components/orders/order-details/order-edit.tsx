@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 // import Image from "next/image";
@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { OrderSuccessDialog } from "./order-success-dialog";
+import axiosInstance from "@/lib/axios";
 // import type { OrderDetails } from "@/types/order"
 
 interface OrderEditProps {
@@ -31,6 +32,8 @@ interface Responder {
 }
 
 interface OrderDetails {
+  assigned_first_responder: any;
+  order_type: any;
   to_address: string;
   from_address: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -55,20 +58,110 @@ interface OrderDetails {
   }[];
 }
 
+// interface ResponderOption {
+//   id: string;
+//   name: string;
+// }
+
 export function OrderEdit({ order: initialOrder }: OrderEditProps) {
   const router = useRouter();
   const [order, setOrder] = useState(initialOrder);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const [responderOptions, setResponderOptions] = useState<
+    { id: string; name: string }[]
+  >([]);
+  const [statusOptions, setStatusOptions] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchOptionStatus = async () => {
+      try {
+        const response = await axiosInstance.get("/admin/get_orders_types");
+        setStatusOptions(response.data.data);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      }
+    };
+
+    fetchOptionStatus();
+  }, []);
+
+  useEffect(() => {
+    const fetchResponders = async () => {
+      try {
+        const response = await axiosInstance.get(
+          `/admin/get_available_professionals`,
+          {
+            params: {
+              order_type: order.order_type,
+              orderId: order.id,
+            },
+          }
+        );
+
+        setResponderOptions(response.data.data);
+      } catch (error) {
+        console.error("Error fetching responders:", error);
+      }
+    };
+
+    fetchResponders();
+  }, []);
+
+  console.log("statusOptions:", statusOptions);
+  console.log("responderOptions", responderOptions);
 
   console.log("Order Edit Component Rendered", order);
 
+  // const handleSave = async () => {
+  //   console.log("Editted Details", statusOptions, responderOptions);
+  //   setSaving(true);
+  //   try {
+  //     await axiosInstance.post("/admin/reassign_professional", {
+  //       orderId: order.id,
+  //       proId: order.responder.id,
+  //     });
+
+  //     await axiosInstance.post("/admin/change_order_status", {
+  //       orderId: order.id,
+  //       status: order.status,
+  //     });
+
+  //     setShowSuccess(true);
+  //   } catch (error) {
+  //     console.error("Error saving order changes:", error);
+  //   } finally {
+  //     setSaving(false);
+  //   }
+  // };
+
   const handleSave = async () => {
-    // Simulate API call
-    // await new Promise((resolve) => setTimeout(resolve, 1000));
-    // setShowSuccess(true);
-    // console.log("Order saved:", order);
-    // console.log("Order ID:", order.id);
-    console.log("Edit order");
+    console.log("Editted Details", statusOptions, responderOptions);
+    setSaving(true);
+
+    try {
+      // ✅ Only reassign if a responder is selected
+      if (order.responder?.id && responderOptions.length > 0) {
+        await axiosInstance.post("/admin/reassign_professional", {
+          orderId: order.id,
+          proId: order.responder.id,
+        });
+      }
+
+      // ✅ Always update order status
+      await axiosInstance.post("/admin/change_order_status", {
+        orderId: order.id,
+        status: order.status,
+      });
+
+      setShowSuccess(true);
+    } catch (error) {
+      console.error("Error saving order changes:", error);
+      alert("Failed to save changes.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -96,19 +189,53 @@ export function OrderEdit({ order: initialOrder }: OrderEditProps) {
           <label className="text-sm text-gray-500">
             Assign/Reassign Responder
           </label>
-          <Select defaultValue={order?.responder?.id}>
+          {/* <Select defaultValue={order?.responder?.id}>
             <SelectTrigger>
               <SelectValue placeholder="" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={order?.responder?.id}>
-                {order?.assigned_professional[0]?.name}
+                {order?.assigned_professional?.name}
               </SelectItem>
-              {/* <SelectItem value="FR-045">
+              <SelectItem value="FR-045">
                 {order.assigned_professional[0]?.name}
-              </SelectItem> */}
+              </SelectItem>
               <SelectItem value="FR-046">John Doe</SelectItem>
               <SelectItem value="FR-047">Jane Smith</SelectItem>
+            </SelectContent>
+          </Select> */}
+
+          <Select
+            defaultValue={order?.responder?.id}
+            onValueChange={(value) => {
+              const selectedResponder = responderOptions.find(
+                (r) => r.id === value
+              );
+              setOrder({
+                ...order,
+                responder: {
+                  ...order.responder,
+                  id: value,
+                  name: selectedResponder?.name || "",
+                },
+              });
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select Responder" />
+            </SelectTrigger>
+            <SelectContent>
+              {responderOptions.length === 0 ? (
+                <SelectItem value="none" disabled>
+                  No responder for the order
+                </SelectItem>
+              ) : (
+                responderOptions.map((responder) => (
+                  <SelectItem key={responder.id} value={responder.id}>
+                    {responder.name}
+                  </SelectItem>
+                ))
+              )}
             </SelectContent>
           </Select>
         </div>
@@ -116,15 +243,19 @@ export function OrderEdit({ order: initialOrder }: OrderEditProps) {
           <label className="text-sm text-gray-500">
             Update Incident Status
           </label>
-          <Select defaultValue={order.status}>
+          <Select
+            defaultValue={order.status}
+            onValueChange={(value) => setOrder({ ...order, status: value })}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Select Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="current status">{order.status}</SelectItem>
-              <SelectItem value="In Progress">In Progress</SelectItem>
-              <SelectItem value="Resolved">Resolved</SelectItem>
-              <SelectItem value="Canceled">Canceled</SelectItem>
+              {statusOptions.map((status) => (
+                <SelectItem key={status} value={status}>
+                  {status}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -231,16 +362,59 @@ export function OrderEdit({ order: initialOrder }: OrderEditProps) {
         <div className="grid grid-cols-3 gap-4">
           <div className="space-y-2">
             <label className="text-sm text-gray-500">Assigned To</label>
-            <Input
-              value={`${order?.assigned_professional[0]?.name} | ${order?.assigned_professional[0]?.id}`}
-              disabled
-              className="bg-white"
-            />
+            {order?.assigned_professional && (
+              <Input
+                value={`${order?.assigned_professional[0]?.name} | ${order?.assigned_professional[0]?.id}`}
+                disabled
+                className="bg-white"
+              />
+            )}
+            {order?.assigned_first_responder && (
+              <Input
+                value={`${order?.assigned_first_responder?.name} | ${order?.assigned_first_responder?.id}`}
+                disabled
+                className="bg-white"
+              />
+            )}
           </div>
           <div className="space-y-2">
             <label className="text-sm text-gray-500">Role</label>
-            <Input
-              value={order?.assigned_professional[0]?.userType}
+
+            {order?.assigned_first_responder?.userType && (
+              <Input
+                value={order?.assigned_first_responder?.userType}
+                onChange={(e) =>
+                  setOrder({
+                    ...order,
+                    assigned_first_responder: [
+                      {
+                        ...order.assigned_first_responder[0],
+                        role: e.target.value,
+                      },
+                    ],
+                  })
+                }
+              />
+            )}
+
+            {order?.assigned_professional?.[0]?.userType && (
+              <Input
+                value={order?.assigned_professional?.[0]?.userType}
+                onChange={(e) =>
+                  setOrder({
+                    ...order,
+                    assigned_professional: [
+                      {
+                        ...order.assigned_professional[0],
+                        role: e.target.value,
+                      },
+                    ],
+                  })
+                }
+              />
+            )}
+            {/* <Input
+              value={order?.assigned_professional?.userType}
               onChange={(e) =>
                 setOrder({
                   ...order,
@@ -249,7 +423,7 @@ export function OrderEdit({ order: initialOrder }: OrderEditProps) {
                   ],
                 })
               }
-            />
+            /> */}
           </div>
           <div className="space-y-2">
             <label className="text-sm text-gray-500">Current Location</label>
@@ -302,7 +476,7 @@ export function OrderEdit({ order: initialOrder }: OrderEditProps) {
 
       <div className="flex justify-center">
         <Button onClick={handleSave} className="bg-orange hover:bg-orange/90">
-          Save Changes
+          {saving ? "Saving..." : "Save Changes"}
         </Button>
       </div>
 
