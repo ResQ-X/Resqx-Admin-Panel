@@ -110,15 +110,15 @@ export function OrdersTable() {
       <div className="bg-white rounded-xl p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-[24px] pb-2 font-semibold">Today</h2>
-            <div className="flex gap-1 items-center">
+            {/* <h2 className="text-[24px] pb-2 font-semibold">Today</h2> */}
+            {/* <div className="flex gap-1 items-center">
               <div className="h-[5px] w-[5px] rounded-full bg-blue-600" />
               <p className="text-sm text-dark-brown">January 12th</p>
-            </div>
+            </div> */}
           </div>
-          <select className="text-sm border rounded-lg px-2 py-1">
+          {/* <select className="text-sm border rounded-lg px-2 py-1">
             <option>January</option>
-          </select>
+          </select> */}
         </div>
 
         <Table>

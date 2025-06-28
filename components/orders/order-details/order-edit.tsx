@@ -1,10 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 // import Image from "next/image";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -36,7 +35,6 @@ interface OrderDetails {
   order_type: any;
   to_address: string;
   from_address: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   assigned_professional: any[];
   id: string;
   status: string;
@@ -107,34 +105,12 @@ export function OrderEdit({ order: initialOrder }: OrderEditProps) {
     };
 
     fetchResponders();
-  }, []);
+  }, [order.id, order.order_type]);
 
-  console.log("statusOptions:", statusOptions);
-  console.log("responderOptions", responderOptions);
+  // console.log("statusOptions:", statusOptions);
+  // console.log("responderOptions", responderOptions);
 
-  console.log("Order Edit Component Rendered", order);
-
-  // const handleSave = async () => {
-  //   console.log("Editted Details", statusOptions, responderOptions);
-  //   setSaving(true);
-  //   try {
-  //     await axiosInstance.post("/admin/reassign_professional", {
-  //       orderId: order.id,
-  //       proId: order.responder.id,
-  //     });
-
-  //     await axiosInstance.post("/admin/change_order_status", {
-  //       orderId: order.id,
-  //       status: order.status,
-  //     });
-
-  //     setShowSuccess(true);
-  //   } catch (error) {
-  //     console.error("Error saving order changes:", error);
-  //   } finally {
-  //     setSaving(false);
-  //   }
-  // };
+  // console.log("Order Edit Component Rendered", order);
 
   const handleSave = async () => {
     console.log("Editted Details", statusOptions, responderOptions);
