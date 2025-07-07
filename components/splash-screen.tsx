@@ -1,23 +1,22 @@
-"use client"
+"use client";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import Image from "next/image"
-
-import { useLoading } from "@/providers/loading-providers"
+import { useLoading } from "@/providers/loading-providers";
 
 export function SplashScreen() {
-  const router = useRouter()
-  const { setIsLoading } = useLoading()
+  const router = useRouter();
+  const { setIsLoading } = useLoading();
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setIsLoading(false)
-      router.push("/login")
-    }, 2000)
+      setIsLoading(false);
+      router.push("/login");
+    }, 2000);
 
-    return () => clearTimeout(timer)
-  }, [router, setIsLoading])
+    return () => clearTimeout(timer);
+  }, [router, setIsLoading]);
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-between p-8">
@@ -32,8 +31,9 @@ export function SplashScreen() {
           />
         </div>
       </div>
-      <footer className="text-sm text-gray-500">© 2023 RESQ-X. All Rights Reserved.</footer>
+      <footer className="text-sm text-gray-500">
+        © 2023 RESQ-X. All Rights Reserved.
+      </footer>
     </div>
-  )
+  );
 }
-
