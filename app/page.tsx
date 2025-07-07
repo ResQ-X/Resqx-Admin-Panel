@@ -1,15 +1,13 @@
-"use client"
-
-import { useLoading } from "@/providers/loading-providers"
-import { SplashScreen } from "@/components/splash-screen"
+"use client";
+import { useLoading } from "@/providers/loading-providers";
+import { SplashScreen } from "@/components/splash-screen";
 
 export default function Home() {
-  const { isLoading } = useLoading()
+  const { isLoading } = useLoading();
 
   if (isLoading) {
-    return <SplashScreen />
+    return <SplashScreen />;
   }
 
-  return null
+  return null;
 }
-
