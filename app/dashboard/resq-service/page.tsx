@@ -48,7 +48,7 @@ interface Suggestions {
   end: GooglePlacePrediction[];
 }
 
-const LocationService: React.FC = () => {
+const ResQXServicesPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("location");
   const [startPosition, setStartPosition] = useState<Position | null>(null);
   const [endPosition, setEndPosition] = useState<Position | null>(null);
@@ -559,4 +559,4 @@ const LocationService: React.FC = () => {
   );
 };
 
-export default LocationService;
+export default ResQXServicesPage;
