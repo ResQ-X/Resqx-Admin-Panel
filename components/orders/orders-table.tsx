@@ -83,7 +83,7 @@ export function OrdersTable({ activeTab }: Props) {
 
   useEffect(() => {
     const fetchOrders = async () => {
-      setIsLoading(true); // Start loading
+      setIsLoading(true);
       try {
         let data: Order[] = [];
 

@@ -19,11 +19,11 @@ export const SIDEBAR_ITEMS = [
   //   href: "/dashboard/operations",
   //   icon: "Activity",
   // },
-  // {
-  //   title: "Manage Staff",
-  //   href: "/dashboard/staff",
-  //   icon: "Users",
-  // },
+  {
+    title: "Manage Staff",
+    href: "/dashboard/staff",
+    icon: "Users",
+  },
   // {
   //   title: "Manage Partners",
   //   href: "/dashboard/partners",

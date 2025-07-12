@@ -1,20 +1,27 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { ChevronRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { cn } from "@/lib/utils"
-import type { AdminStaff } from "@/types/staff"
+import Link from "next/link";
+import { ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
+import type { AdminStaff } from "@/types/staff";
 
 const statusStyles = {
   "On Duty": "text-green-600 bg-green-50",
   "Off Duty": "text-orange-600 bg-orange-50",
   Busy: "text-red-600 bg-red-50",
-}
+};
 
 interface AdminTableProps {
-  staff: AdminStaff[]
+  staff: AdminStaff[];
 }
 
 export function AdminTable({ staff }: AdminTableProps) {
@@ -40,12 +47,12 @@ export function AdminTable({ staff }: AdminTableProps) {
               <TableCell>{member.name}</TableCell>
               <TableCell>{member.location}</TableCell>
               <TableCell>{member.role}</TableCell>
-              <TableCell>{member.dateAdded}</TableCell>
+              <TableCell>{member.created_at}</TableCell>
               <TableCell>
                 <span
                   className={cn(
                     "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
-                    statusStyles[member.status],
+                    statusStyles[member.status]
                   )}
                 >
                   {member.status}
@@ -63,11 +70,13 @@ export function AdminTable({ staff }: AdminTableProps) {
 
       <div className="mt-6 flex gap-4">
         <Button className="bg-orange hover:bg-orange/90">View All</Button>
-        <Button variant="outline" className="border-orange text-orange hover:bg-orange/10">
+        <Button
+          variant="outline"
+          className="border-orange text-orange hover:bg-orange/10"
+        >
           Update List
         </Button>
       </div>
     </div>
-  )
+  );
 }
-
