@@ -158,12 +158,12 @@ export function OrdersTable({ activeTab }: Props) {
   return (
     <div className="">
       <form className="max-w-md mb-4">
-        <label
+        {/* <label
           htmlFor="default-search"
           className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white"
         >
           Search
-        </label>
+        </label> */}
         <div className="relative">
           <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
             <svg
@@ -182,13 +182,6 @@ export function OrdersTable({ activeTab }: Props) {
               />
             </svg>
           </div>
-          {/* <input
-            type="search"
-            id="default-search"
-            className="block w-full p-4 ps-10 text-sm text-gray-900 border border-[#F2E7DA] rounded-[19px] bg-[#FAF8F5] outline-none"
-            placeholder="Search Orders"
-            required
-          /> */}
           <input
             type="search"
             id="default-search"

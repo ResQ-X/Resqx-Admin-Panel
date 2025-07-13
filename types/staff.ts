@@ -15,6 +15,8 @@ export interface Responder extends StaffMember {
 export interface AdminStaff extends StaffMember {
   role: string;
   created_at: string;
+  userType: string; // e.g., "ADMIN", "SUPPORT"
+  is_online: boolean;
 }
 
 export interface StaffProfile {
