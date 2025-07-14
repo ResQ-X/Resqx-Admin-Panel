@@ -107,16 +107,16 @@ export default function LoginPage() {
                 {authState.isLoading ? "Signing in..." : "Sign In"}
               </Button>
 
-              {/* <p className="text-center text-sm text-gray-500">
-                Don't have an account?{" "}
-                {/* <Button
+              <p className="text-center text-sm text-gray-500">
+                Don&apos;t have an account?{" "}
+                <Button
                   variant="link"
                   className="text-orange hover:text-orange/80"
-                  onClick={() => router.push("/signup")}
+                  onClick={() => router.push("/login/signup")}
                 >
                   Sign Up
-                </Button> 
-              </p> */}
+                </Button>
+              </p>
             </form>
           </div>
         </div>
