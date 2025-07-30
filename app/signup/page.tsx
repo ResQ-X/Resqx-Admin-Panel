@@ -1,17 +1,18 @@
-"use client"
-
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Label } from "@/components/ui/label"
-import { AuthService } from "@/services/auth.service"
-import type { AuthState, SignupFormData } from "@/types/auth"
+"use client";
+import { Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { AuthService } from "@/services/auth.service";
+import type { AuthState, SignupFormData } from "@/types/auth";
 
 export default function SignupPage() {
-  const router = useRouter()
+  const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState<SignupFormData>({
     name: "",
     email: "",
@@ -19,35 +20,36 @@ export default function SignupPage() {
     phone: "",
     userType: "ADMIN",
     password: "",
-  })
+  });
   const [authState, setAuthState] = useState<AuthState>({
     isLoading: false,
     error: null,
-  })
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setAuthState({ isLoading: true, error: null })
+    e.preventDefault();
+    setAuthState({ isLoading: true, error: null });
 
     try {
-      const response = await AuthService.signup(formData)
+      const response = await AuthService.signup(formData);
       if (response.success) {
-        router.push(`/verify-email?email=${formData.email}`)
+        router.push(`/verify-email?email=${formData.email}`);
       }
     } catch (error: any) {
       setAuthState({
         isLoading: false,
-        error: error.response?.data?.message || "An error occurred during signup",
-      })
+        error:
+          error.response?.data?.message || "An error occurred during signup",
+      });
     }
-  }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
-    }))
-  }
+    }));
+  };
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center">
@@ -56,10 +58,20 @@ export default function SignupPage() {
           <div className="mx-auto w-full flex justify-center flex-col max-w-sm">
             <div className="mb-8 flex items-center flex-col">
               <div className="w-[181px] h-[70px] relative mb-8">
-                <Image src="/ressqx.png" alt="RESQ-X Logo" fill className="object-cover" priority />
+                <Image
+                  src="/ressqx.png"
+                  alt="RESQ-X Logo"
+                  fill
+                  className="object-cover"
+                  priority
+                />
               </div>
-              <h1 className="text-5xl text-dark-brown font-medium">Create Account</h1>
-              <p className="mt-4 text-[13px] text-dark font-medium">Join our team of authorized personnel.</p>
+              <h1 className="text-5xl text-dark-brown font-medium">
+                Create Account
+              </h1>
+              <p className="mt-4 text-[13px] text-dark font-medium">
+                Join our team of authorized personnel.
+              </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -115,7 +127,7 @@ export default function SignupPage() {
                 />
               </div>
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Input
                   id="password"
                   name="password"
@@ -126,6 +138,31 @@ export default function SignupPage() {
                   value={formData.password}
                   onChange={handleChange}
                 />
+              </div> */}
+
+              <div className="relative w-full max-w-[400px]">
+                <Input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  required
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full bg-orange bg-opacity-5 h-[60px] rounded-[10px] border border-beige pr-12"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-dark focus:outline-none"
+                  tabIndex={-1}
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
               </div>
 
               <div className="space-y-2">
@@ -133,7 +170,10 @@ export default function SignupPage() {
                 <RadioGroup
                   defaultValue="ADMIN"
                   onValueChange={(value) =>
-                    setFormData((prev) => ({ ...prev, userType: value as "ADMIN" | "CUSTOMER" }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      userType: value as "ADMIN" | "CUSTOMER",
+                    }))
                   }
                   className="flex gap-4"
                 >
@@ -148,7 +188,9 @@ export default function SignupPage() {
                 </RadioGroup>
               </div>
 
-              {authState.error && <p className="text-sm text-red-500">{authState.error}</p>}
+              {authState.error && (
+                <p className="text-sm text-red-500">{authState.error}</p>
+              )}
 
               <Button
                 type="submit"
@@ -185,14 +227,16 @@ export default function SignupPage() {
           <div className="absolute inset-0 bg-black/60 z-10" />
 
           <div className="absolute inset-0 z-20 flex flex-col justify-center p-12 text-white">
-            <h2 className="text-4xl font-bold mb-4">Join our administrative team.</h2>
+            <h2 className="text-4xl font-bold mb-4">
+              Join our administrative team.
+            </h2>
             <p className="text-lg max-w-xl">
-              Be part of our mission to enhance efficiency and improve response times for seamless operations.
+              Be part of our mission to enhance efficiency and improve response
+              times for seamless operations.
             </p>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
-
