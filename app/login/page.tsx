@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
+import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -13,6 +13,7 @@ import type { AuthState, LoginFormData } from "@/types/auth";
 export default function LoginPage() {
   const router = useRouter();
   const { setUser } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
@@ -82,7 +83,7 @@ export default function LoginPage() {
                 />
               </div>
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Input
                   id="password"
                   name="password"
@@ -93,6 +94,31 @@ export default function LoginPage() {
                   value={formData.password}
                   onChange={handleChange}
                 />
+              </div> */}
+
+              <div className="relative w-full max-w-[400px]">
+                <Input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  required
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full bg-orange bg-opacity-5 h-[60px] rounded-[10px] border border-beige pr-12"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-dark focus:outline-none"
+                  tabIndex={-1}
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
               </div>
 
               {authState.error && (
@@ -112,7 +138,7 @@ export default function LoginPage() {
                 <Button
                   variant="link"
                   className="text-orange hover:text-orange/80"
-                  onClick={() => router.push("/login/signup")}
+                  onClick={() => router.push("/signup")}
                 >
                   Sign Up
                 </Button>
