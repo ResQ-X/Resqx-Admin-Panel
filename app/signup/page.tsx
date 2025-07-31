@@ -35,6 +35,7 @@ export default function SignupPage() {
       if (response.success) {
         router.push(`/verify-email?email=${formData.email}`);
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       setAuthState({
         isLoading: false,
