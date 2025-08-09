@@ -69,6 +69,10 @@ export function OrdersTable() {
     day: "numeric",
   });
 
+  const shortenId = (id: string) => {
+    return `ord-${id.split("-")[0].substring(0, 5)}`;
+  };
+
   console.log("Orders:", orders);
 
   return (
@@ -114,7 +118,7 @@ export function OrdersTable() {
                         href={`/dashboard/orders/${order?.id}`}
                         className="hover:text-orange"
                       >
-                        {order?.id}
+                        {shortenId(order?.id)}
                       </Link>
                     </TableCell>
                     {/* <TableCell>
@@ -138,8 +142,11 @@ export function OrdersTable() {
                     <TableCell>{order?.assigned_first_responder?.id}</TableCell>
                     <TableCell>
                       <span
+                        // className={cn(
+                        //   "bg-red-900 inline-flex items-center px-2.5 py-0.5 gap-3 rounded-full text-xs font-medium"
+                        // )}
                         className={cn(
-                          "inline-flex items-center px-2.5 py-0.5 gap-3 rounded-full text-xs font-medium"
+                          "inline-flex items-center px-2.5 py-0.5 gap-3 rounded-full text-xs font-medium text-left justify-start"
                         )}
                       >
                         <div

@@ -23,7 +23,7 @@ interface Props {
   activeTab: string;
 }
 
-export type Admin = {
+export type User = {
   userType: string;
   created_at: string | number | Date;
   is_online: boolean;
@@ -37,21 +37,21 @@ export type Admin = {
   avgResponseTime?: string;
 };
 
-export function AdminTable({ activeTab }: Props) {
+export function UsersTable({ activeTab }: Props) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [admins, setAdmins] = useState<Admin[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchAdmins = async () => {
+    const fetchUsers = async () => {
       setIsLoading(true);
       try {
-        let data: Admin[] = [];
+        let data: User[] = [];
 
         switch (activeTab) {
           case "isOnline": {
             const completedRes = await axiosInstance.get(
-              "/admin/get_all_pros?isOnline=true"
+              "/admin/get_all_users?isOnline=true"
             );
             data = [...(completedRes.data.data.users || [])];
             break;
@@ -59,47 +59,53 @@ export function AdminTable({ activeTab }: Props) {
 
           case "isOffline": {
             const completedRes = await axiosInstance.get(
-              "/admin/get_all_pros?isOnline=false"
+              "/admin/get_all_users?isOnline=false"
             );
             data = [...(completedRes.data.data.users || [])];
             break;
           }
 
+          case "user_type": {
+            const res = await axiosInstance.get(
+              "/admin/get_all_users?user_type=CUSTOMER"
+            );
+            data = res.data.data.users || [];
+            break;
+          }
+
           case "isVerified": {
             const res = await axiosInstance.get(
-              "/admin/get_all_pros?isVerified=true"
+              "/admin/get_all_users?isVerified=true"
             );
             data = res.data.data.users || [];
             break;
           }
 
           default: {
-            const res = await axiosInstance.get("/admin/get_all_pros");
+            const res = await axiosInstance.get("/admin/get_all_users");
             data = res.data.data.users || [];
           }
         }
 
-        setAdmins(data);
+        setUsers(data);
       } catch (error) {
-        console.error("Error fetching Admins:", error);
+        console.error("Error fetching users:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchAdmins();
+    fetchUsers();
   }, [activeTab]);
 
-  console.log("admins", admins);
-
   const shortenId = (id: string) => {
-    return `adm-${id.split("-")[0].substring(0, 5)}`;
+    return `user-${id.split("-")[0].substring(0, 5)}`;
   };
+
+  console.log("users", users);
 
   return (
     <div className="bg-white rounded-xl p-6">
-      {/* <h2 className="text-lg font-semibold mb-6">Admin Staff</h2> */}
-
       <div className="w-2/5 relative mb-5">
         <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
           <svg
@@ -122,7 +128,7 @@ export function AdminTable({ activeTab }: Props) {
           type="search"
           id="default-search"
           className="block w-full p-4 ps-10 text-sm text-gray-900 border border-[#F2E7DA] rounded-[19px] bg-[#FAF8F5] outline-none"
-          placeholder="Search professional"
+          placeholder="Search user"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -150,7 +156,7 @@ export function AdminTable({ activeTab }: Props) {
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
             ></path>
           </svg>
-          <p className="text-sm text-gray-500">Fetching admins...</p>
+          <p className="text-sm text-gray-500">Fetching users...</p>
         </div>
       ) : (
         <Table>
@@ -166,7 +172,7 @@ export function AdminTable({ activeTab }: Props) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {admins
+            {users
               ?.filter((member) =>
                 member.name.toLowerCase().includes(searchTerm.toLowerCase())
               )
@@ -195,7 +201,7 @@ export function AdminTable({ activeTab }: Props) {
                     })()}
                   </TableCell>
                   <TableCell>
-                    <Link href={`/dashboard/staff/admin/${member.id}`}>
+                    <Link href={`/dashboard/users/${member.id}`}>
                       <ChevronRight className="h-4 w-4 text-gray-400" />
                     </Link>
                   </TableCell>

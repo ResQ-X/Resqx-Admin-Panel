@@ -24,6 +24,11 @@ export const SIDEBAR_ITEMS = [
     href: "/dashboard/staff",
     icon: "Users",
   },
+  {
+    title: "Manage Users",
+    href: "/dashboard/users",
+    icon: "Users",
+  },
   // {
   //   title: "Manage Partners",
   //   href: "/dashboard/partners",
