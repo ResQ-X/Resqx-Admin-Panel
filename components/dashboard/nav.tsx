@@ -32,6 +32,7 @@ export function DashboardNav({ onMenuClick }: DashboardNavProps) {
     if (path.startsWith("/dashboard/orders")) return "Orders Management";
     if (path.startsWith("/dashboard/services")) return "Services Management";
     if (path.startsWith("/dashboard/staff")) return "Staff Management";
+    if (path.startsWith("/dashboard/users")) return "Users Management";
     if (path.startsWith("/dashboard/resqx-service")) return "ResQx Service";
     if (path.startsWith("/dashboard/tracking")) return "Live Tracking";
     if (path === "/dashboard") return "Dashboard";
@@ -56,7 +57,7 @@ export function DashboardNav({ onMenuClick }: DashboardNavProps) {
 
       {/* Logo or Search Placeholder */}
       <div className="flex-1 flex justify-center md:justify-start">
-        <span className="text-lg font-bold text-dark-brown">
+        <span className="text-lg md:text-2xl font-bold text-dark-brown">
           {getPageTitle(pathname)}
         </span>
         {/* Optional: insert search input here for md+ screens */}

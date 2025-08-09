@@ -21,7 +21,7 @@ export default function StaffPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold">Staff Management</h1>
+      {/* <h1 className="text-2xl font-bold">Staff Management</h1> */}
 
       {/* <RespondersTable responders={MOCK_RESPONDERS} /> */}
       <AdminTabs activeTab={activeTab} setActiveTab={setActiveTab} />

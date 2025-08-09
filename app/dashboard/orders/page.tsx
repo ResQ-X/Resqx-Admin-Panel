@@ -11,9 +11,9 @@ export default function OrdersPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-[32px] text-dark-brown font-bold mb-4">
+        {/* <h1 className="text-[32px] text-dark-brown font-bold mb-4">
           Order Management
-        </h1>
+        </h1> */}
         <OrderTabs activeTab={activeTab} setActiveTab={setActiveTab} />
       </div>
 

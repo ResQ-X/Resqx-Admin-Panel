@@ -5,9 +5,9 @@ export default function ServicesPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-[32px] text-dark-brown font-bold mb-4">
+        {/* <h1 className="text-[32px] text-dark-brown font-bold mb-4">
           Service Management
-        </h1>
+        </h1> */}
         {/* <ServiceTabs /> */}
       </div>
 
