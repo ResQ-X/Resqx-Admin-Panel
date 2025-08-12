@@ -31,7 +31,7 @@ export default function SignupPage() {
     e.preventDefault();
     setAuthState({ isLoading: true, error: null });
 
-    console.log("Form Data:", formData);
+    console.log("Form Data (before format):", formData);
 
     if (!/@resqx\.ng$/i.test(formData.email)) {
       setAuthState({
@@ -41,12 +41,19 @@ export default function SignupPage() {
       return;
     }
 
+    let formattedPhone = formData.phone.trim();
+    if (formattedPhone.startsWith("0")) {
+      formattedPhone = "+234" + formattedPhone.slice(1);
+    }
+
     try {
-      const response = await AuthService.signup(formData);
+      const response = await AuthService.signup({
+        ...formData,
+        phone: formattedPhone,
+      });
       if (response.success) {
         router.push(`/verify-email?email=${formData.email}`);
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       setAuthState({
         isLoading: false,
