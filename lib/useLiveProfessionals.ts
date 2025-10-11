@@ -37,7 +37,8 @@ export function useLiveProfessionals(userId: string | undefined) {
       return;
     }
 
-    const socket = io("https://internal-backend-rdhj.onrender.com", {
+    // const socket = io("https://internal-backend-rdhj.onrender.com", {
+    const socket = io("https://backend-v2-dkn8.onrender.com", {
       query: { userId },
       transports: ["websocket"],
       timeout: 10000, // 10 second timeout

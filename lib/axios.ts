@@ -4,7 +4,8 @@ import { Cookies } from "react-cookie";
 const cookies = new Cookies();
 
 const axiosInstance = axios.create({
-  baseURL: "https://internal-backend-rdhj.onrender.com",
+  // baseURL: "https://internal-backend-rdhj.onrender.com",
+  baseURL: "https://backend-v2-dkn8.onrender.com",
   headers: {
     "Content-Type": "application/json",
     "x-resqx-key": "OGCALMDOWNLETMETHROUGH",
@@ -13,7 +14,7 @@ const axiosInstance = axios.create({
 
 // Add a request interceptor to include the access token in authorized requests
 axiosInstance.interceptors.request.use((config) => {
-  const accessToken = cookies.get("accessToken");
+  const accessToken = cookies.get("access_token");
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
