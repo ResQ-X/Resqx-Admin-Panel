@@ -29,7 +29,8 @@ export default function LoginPage() {
 
     try {
       const response = await AuthService.login(formData);
-      if (response.success && response.user) {
+      if (response.access_token && response.user) {
+        // if (response.success && response.user) {
         setUser(response.user);
         router.push("/dashboard");
       }
