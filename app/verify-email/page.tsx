@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { AuthService } from "@/services/auth.service";
 import type { AuthState } from "@/types/auth";
 
-// Wrap the main component with Suspense
 function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
