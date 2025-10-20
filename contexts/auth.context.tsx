@@ -18,6 +18,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const cookies = new Cookies();
 
+  console.log(router);
+
   useEffect(() => {
     const userFromCookie = cookies.get("user");
     if (userFromCookie) {
@@ -27,7 +29,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setUser(userFromCookie);
       }
-      console.log(userFromCookie)
+      console.log(userFromCookie);
     }
   }, [cookies.get]);
 
