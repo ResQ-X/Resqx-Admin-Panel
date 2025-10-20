@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
-import { OrderTabs } from "@/components/orders/order-tabs";
-import { OrdersTable } from "@/components/orders/orders-table";
+import { OrderTabs } from "@/components/orders/OrderTabs";
+import { OrdersTable } from "@/components/orders/OrdersTable";
 // import { MonthlyOverview } from "@/components/orders/monthly-overview"
 // import { OrderTrend } from "@/components/orders/order-trend"
 

@@ -1,14 +1,18 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/Button";
 
 type PaginationProps = {
-  currentPage: number
-  totalPages: number
-  onPageChange: (page: number) => void
-}
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+};
 
-export function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
+export function Pagination({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: PaginationProps) {
   return (
     <nav className="flex items-center gap-2">
       <Button
@@ -29,5 +33,5 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
         Next
       </Button>
     </nav>
-  )
+  );
 }

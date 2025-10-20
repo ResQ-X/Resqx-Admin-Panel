@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { StatCard } from "@/components/dashboard/stat-card";
-import { OrdersTable } from "@/components/dashboard/incidents-table";
+import { StatCard } from "@/components/dashboard/StatCard";
+import { OrdersTable } from "@/components/dashboard/IncidentsTable";
 // import { RevenueChart } from "@/components/dashboard/revenue-chart";
 import axiosInstance from "@/lib/axios";
 

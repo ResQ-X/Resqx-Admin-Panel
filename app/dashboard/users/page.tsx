@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
-import { UsersTabs } from "@/components/users/users-tabs";
-import { UsersTable } from "@/components/users/users-table";
+import { UsersTabs } from "@/components/users/UsersTabs";
+import { UsersTable } from "@/components/users/UsersTable";
 
 export type Professional = {
   id: string;

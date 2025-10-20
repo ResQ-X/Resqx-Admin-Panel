@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { StatsCards } from "@/components/operations/stats-cards";
-import { OperationsMap } from "@/components/operations/operations-map";
-import { IncidentsTable } from "@/components/operations/incidents-table";
-import { RespondersTable } from "@/components/operations/responders-table";
-import { PartnersTable } from "@/components/operations/partners-table";
+import { StatsCards } from "@/components/operations/StatsCards";
+import { OperationsMap } from "@/components/operations/OperationsMap";
+import { IncidentsTable } from "@/components/operations/IncidentsTable";
+import { RespondersTable } from "@/components/operations/RespondersTable";
+import { PartnersTable } from "@/components/operations/PartnersTable";
 import type { Incident, Partner, Responder } from "@/types/operations";
 
 const MOCK_STATS = {

@@ -1,8 +1,8 @@
 "use client";
 import { useState, useEffect, use } from "react";
 import axiosInstance from "@/lib/axios";
-import { OrderView } from "@/components/orders/order-details/order-view";
-import { OrderEdit } from "@/components/orders/order-details/order-edit";
+import { OrderView } from "@/components/orders/order-details/OrderView";
+import { OrderEdit } from "@/components/orders/order-details/OrderEdit";
 
 export default function OrderDetailsPage({
   params,

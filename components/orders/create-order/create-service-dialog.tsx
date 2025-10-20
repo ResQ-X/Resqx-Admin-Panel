@@ -6,10 +6,10 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { CreateServiceForm } from "./create-service-form";
-import { CreateServiceLoading } from "./create-service-loading";
-import { CreateServiceSuccess } from "./create-service-success";
+} from "@/components/ui/Dialog";
+import { CreateServiceForm } from "./CreateServiceForm";
+import { CreateServiceLoading } from "./CreateServiceLoading";
+import { CreateServiceSuccess } from "./CreateServiceSuccess";
 import type { CreateServiceState } from "@/types/service-form";
 import { AuthService } from "@/services/auth.service";
 

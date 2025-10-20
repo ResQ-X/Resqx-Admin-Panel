@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 // import { ProfileForm } from "@/components/staff/profile-form";
-import { SuccessDialog } from "@/components/staff/success-dialog";
+import { SuccessDialog } from "@/components/staff/SuccessDialog";
 // import type { StaffProfile } from "@/types/staff";
 
 // const MOCK_PROFILE = {

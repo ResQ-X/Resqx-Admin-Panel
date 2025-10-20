@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import axiosInstance from "@/lib/axios";
 // import { ProfileForm } from "@/components/staff/profile-form";
-import { SuccessDialog } from "@/components/staff/success-dialog";
+import { SuccessDialog } from "@/components/staff/SuccessDialog";
 import type { StaffProfile } from "@/types/staff";
 import UsersDetails from "@/components/users/usersDetails";
 // import ProfDetails from "@/components/staff/profDetails";

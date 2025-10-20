@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { PartnerProfile } from "@/components/partners/partner-profile"
-import type { PartnerProfile as PartnerProfileType } from "@/types/partners"
+import { useState } from "react";
+import { PartnerProfile } from "@/components/partners/PartnerProfile";
+import type { PartnerProfile as PartnerProfileType } from "@/types/partners";
 
 // Remove the 'as const' assertion and type the assignedItems array explicitly
 const MOCK_PROFILE: PartnerProfileType = {
@@ -21,16 +21,23 @@ const MOCK_PROFILE: PartnerProfileType = {
     frequency: "Monthly",
   },
   assignedItems: ["Enter List"],
-}
+};
 
 export default function PartnerProfilePage() {
-  const [mode, setMode] = useState<"view" | "edit">("view")
+  const [mode, setMode] = useState<"view" | "edit">("view");
 
   const handleSave = async (profile: PartnerProfileType) => {
-     console.log(profile)
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    setMode("view")
-  }
+    console.log(profile);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    setMode("view");
+  };
 
-  return <PartnerProfile profile={MOCK_PROFILE} mode={mode} onEdit={() => setMode("edit")} onSave={handleSave} />
+  return (
+    <PartnerProfile
+      profile={MOCK_PROFILE}
+      mode={mode}
+      onEdit={() => setMode("edit")}
+      onSave={handleSave}
+    />
+  );
 }
