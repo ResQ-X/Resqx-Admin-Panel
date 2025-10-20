@@ -71,7 +71,7 @@ export default function ProfessionalDetails() {
       {professional.vehicle_details?.length > 0 && (
         <div>
           <h2 className="text-xl font-semibold mt-6 mb-2">Vehicle Details</h2>
-          {professional.vehicle_details.map((vehicle: any, idx: number) => (
+          {professional.vehicle_details.map((vehicle: any) => (
             <div key={vehicle.id} className="grid grid-cols-3 gap-6 mb-4">
               <InputField label="Plate Number" value={vehicle.plate_number} />
               <InputField label="Vehicle Type" value={vehicle.vehicle_type} />
