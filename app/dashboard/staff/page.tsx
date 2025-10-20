@@ -1,8 +1,8 @@
 "use client";
 import React, { useState } from "react";
-import { AdminTabs } from "@/components/staff/admin-tabs";
+import { AdminTabs } from "@/components/staff/AdminTabs";
 // import { RespondersTable } from "@/components/staff/responders-table";
-import { AdminTable } from "@/components/staff/admin-table";
+import { AdminTable } from "@/components/staff/AdminTable";
 // import { AdminStaff } from "@/types/staff";
 
 export type Professional = {

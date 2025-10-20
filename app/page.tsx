@@ -1,6 +1,6 @@
 "use client";
 import { useLoading } from "@/providers/loading-providers";
-import { SplashScreen } from "@/components/splash-screen";
+import { SplashScreen } from "@/components/SplashScreen";
 
 export default function Home() {
   const { isLoading } = useLoading();

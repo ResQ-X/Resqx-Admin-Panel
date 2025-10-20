@@ -1,15 +1,15 @@
-import { MetricsCards } from "@/components/partners/metrics-cards"
-import { PartnersTable } from "@/components/partners/partners-table"
+import { MetricsCards } from "@/components/partners/MetricsCards";
+import { PartnersTable } from "@/components/partners/PartnersTable";
 
 // Define the Partner type (should match your component's expectations)
 type Partner = {
-  id: string
-  name: string
-  location: string
-  vehicles: number
-  avgResponseTime: string
-  status: "On Duty" | "Off Duty" | "Busy" // Include all possible status values
-}
+  id: string;
+  name: string;
+  location: string;
+  vehicles: number;
+  avgResponseTime: string;
+  status: "On Duty" | "Off Duty" | "Busy"; // Include all possible status values
+};
 
 const MOCK_METRICS = {
   activePartners: {
@@ -32,7 +32,7 @@ const MOCK_METRICS = {
     change: "1.8%",
     timeframe: "from last month",
   },
-} as const
+} as const;
 
 // Type the mock partners array explicitly
 const MOCK_PARTNERS: Partner[] = [
@@ -76,7 +76,7 @@ const MOCK_PARTNERS: Partner[] = [
     avgResponseTime: "5 Min",
     status: "Off Duty",
   },
-]
+];
 
 export default function PartnersPage() {
   return (
@@ -90,5 +90,5 @@ export default function PartnersPage() {
         © 2025 ResQ-X. All Rights Reserved.
       </footer>
     </div>
-  )
+  );
 }

@@ -1,5 +1,5 @@
 // import { ServiceTabs } from "@/components/services/service-tabs"
-import { ServicesTable } from "@/components/services/services-table";
+import { ServicesTable } from "@/components/services/ServicesTable";
 
 export default function ServicesPage() {
   return (

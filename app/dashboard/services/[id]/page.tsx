@@ -3,8 +3,8 @@ import { useState, useEffect } from "react";
 import { use } from "react";
 // import { useRouter } from "next/navigation";
 import axiosInstance from "@/lib/axios";
-import { ServiceView } from "@/components/services/service-details/service-view";
-import { ServiceEdit } from "@/components/services/service-details/service-edit";
+import { ServiceView } from "@/components/services/service-details/ServiceView";
+import { ServiceEdit } from "@/components/services/service-details/ServiceEdit";
 
 export default function OrderDetailsPage({
   params,

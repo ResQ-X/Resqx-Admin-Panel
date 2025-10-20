@@ -88,8 +88,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Cookies } from "react-cookie";
-import { DashboardNav } from "@/components/dashboard/nav";
-import { Sidebar } from "@/components/dashboard/sidebar";
+import { DashboardNav } from "@/components/dashboard/Nav";
+import { Sidebar } from "@/components/dashboard/Sidebar";
 
 export default function DashboardLayout({
   children,
