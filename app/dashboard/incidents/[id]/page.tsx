@@ -1,10 +1,10 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { CustomerInfo } from "@/components/incident-details/CustomerInfo";
-import { LocationInfo } from "@/components/incident-details/LocationInfo";
-import { ResponderInfo } from "@/components/incident-details/ResponderInfo";
-import { ActivityLog } from "@/components/incident-details/ActivityLog";
+import { CustomerInfo } from "@/components/dashboard/incident-details/CustomerInfo";
+import { LocationInfo } from "@/components/dashboard/incident-details/LocationInfo";
+import { ResponderInfo } from "@/components/dashboard/incident-details/ResponderInfo";
+import { ActivityLog } from "@/components/dashboard/incident-details/ActivityLog";
 import { Button } from "@/components/ui/Button";
 
 const MOCK_INCIDENT_DETAILS = {
