@@ -1,5 +1,5 @@
 "use client";
-
+import Image from "next/image";
 import { useState, useRef } from "react";
 import { ImagePlus } from "lucide-react";
 import { Progress } from "@/components/ui/Progress";
@@ -59,7 +59,7 @@ export function PhotoUpload({ currentPhoto, onPhotoChange }: PhotoUploadProps) {
       >
         {currentPhoto ? (
           <div className="h-24 w-24 rounded-full overflow-hidden">
-            <img
+            <Image
               src={currentPhoto || "/placeholder.svg"}
               alt="Profile"
               className="h-full w-full object-cover"
