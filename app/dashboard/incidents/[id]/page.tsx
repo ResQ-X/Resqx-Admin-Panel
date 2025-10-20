@@ -1,13 +1,11 @@
-"use client"
-
-import { useRouter } from "next/navigation"
-import { ArrowLeft } from "lucide-react"
-
-import { CustomerInfo } from "@/components/dashboard/incident-details/customer-info"
-import { LocationInfo } from "@/components/dashboard/incident-details/location-info"
-import { ResponderInfo } from "@/components/dashboard/incident-details/responder-info"
-import { ActivityLog } from "@/components/dashboard/incident-details/activity-log"
-import { Button } from "@/components/ui/button"
+"use client";
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
+import { CustomerInfo } from "@/components/dashboard/incident-details/customer-info";
+import { LocationInfo } from "@/components/dashboard/incident-details/location-info";
+import { ResponderInfo } from "@/components/dashboard/incident-details/responder-info";
+import { ActivityLog } from "@/components/dashboard/incident-details/activity-log";
+import { Button } from "@/components/ui/button";
 
 const MOCK_INCIDENT_DETAILS = {
   id: "INC-00123",
@@ -60,10 +58,10 @@ const MOCK_INCIDENT_DETAILS = {
       note: "Reason: Heavy traffic",
     },
   ],
-}
+};
 
 export default function IncidentDetailsPage() {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <div className="max-w-7xl mx-auto bg-white rounded-xl p-8">
@@ -76,10 +74,14 @@ export default function IncidentDetailsPage() {
         <div>
           <h1 className="text-3xl font-bold">Incident Details</h1>
           <div className="flex items-center gap-4 mt-2">
-            <span className="text-gray-500">Incident ID: {MOCK_INCIDENT_DETAILS.id}</span>
+            <span className="text-gray-500">
+              Incident ID: {MOCK_INCIDENT_DETAILS.id}
+            </span>
             <div className="flex items-center gap-2">
               <span className="text-gray-500">Status:</span>
-              <span className="text-yellow-600">{MOCK_INCIDENT_DETAILS.status}</span>
+              <span className="text-yellow-600">
+                {MOCK_INCIDENT_DETAILS.status}
+              </span>
             </div>
           </div>
         </div>
@@ -90,6 +92,5 @@ export default function IncidentDetailsPage() {
         <ActivityLog activities={MOCK_INCIDENT_DETAILS.activities} />
       </div>
     </div>
-  )
+  );
 }
-
