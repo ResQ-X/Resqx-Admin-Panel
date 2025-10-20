@@ -1,5 +1,5 @@
 import { ArrowUp } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { Card } from "@/components/ui/Card";
 import type { PartnerMetrics } from "@/types/partners";
 
 interface MetricsCardsProps {

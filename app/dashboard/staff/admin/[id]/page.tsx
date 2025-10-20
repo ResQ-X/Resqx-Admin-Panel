@@ -6,7 +6,7 @@ import axiosInstance from "@/lib/axios";
 // import { ProfileForm } from "@/components/staff/profile-form";
 import { SuccessDialog } from "@/components/staff/SuccessDialog";
 import type { StaffProfile } from "@/types/staff";
-import ProfDetails from "@/components/staff/profDetails";
+import ProfDetails from "@/components/staff/ProfDetails";
 
 export default function AdminProfilePage() {
   const { id } = useParams();

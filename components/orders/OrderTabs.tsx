@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { CreateOrderDialog } from "./create-order/createOrderDialog";
+import { CreateOrderDialog } from "./create-order/CreateOrderDialog";
 
 type Props = {
   activeTab: string;

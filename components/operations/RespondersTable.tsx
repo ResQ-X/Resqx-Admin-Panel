@@ -8,7 +8,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdownMenu";
+} from "@/components/ui/DropdownMenu";
 import {
   Table,
   TableBody,
