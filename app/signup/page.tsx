@@ -3,23 +3,23 @@ import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { toast } from "react-toastify";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-// import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-// import { Label } from "@/components/ui/label";
 import { AuthService } from "@/services/auth.service";
 import type { AuthState, SignupFormData } from "@/types/auth";
 
 export default function SignupPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [formData, setFormData] = useState<SignupFormData>({
     name: "",
     email: "",
     country: "",
     phone: "",
     userType: "ADMIN",
-    // userType: "ADMIN" | "CUSTOMER_SUPPORT" | "OPERATION_MANAGER";
     password: "",
   });
   const [authState, setAuthState] = useState<AuthState>({
@@ -27,17 +27,38 @@ export default function SignupPage() {
     error: null,
   });
 
+  const passwordsMatch = formData.password === confirmPassword;
+
+  const isStrongPassword = (pwd: string) => {
+    // min 8 chars, at least: 1 lower, 1 upper, 1 digit, 1 special
+    return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/.test(pwd);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthState({ isLoading: true, error: null });
 
     console.log("Form Data (before format):", formData);
 
-    if (!/@resqx\.ng$/i.test(formData.email)) {
-      setAuthState({
-        isLoading: false,
-        error: "Only @resqx.ng email addresses are allowed",
-      });
+    // if (!/@resqx\.ng$/i.test(formData.email)) {
+    //   setAuthState({
+    //     isLoading: false,
+    //     error: "Only @resqx.ng email addresses are allowed",
+    //   });
+    //   return;
+    // }
+
+    if (!isStrongPassword(formData.password)) {
+      setAuthState({ isLoading: false, error: null });
+      toast.error(
+        "Password must be at least 8 characters and include uppercase, lowercase, a number, and a special character."
+      );
+      return;
+    }
+
+    if (!passwordsMatch) {
+      setAuthState({ isLoading: false, error: null });
+      toast.error("Passwords do not match.");
       return;
     }
 
@@ -52,14 +73,18 @@ export default function SignupPage() {
         phone: formattedPhone,
       });
       if (response.success) {
+        toast.success(
+          response.message || "Account created! Please verify your email."
+        );
         router.push(`/verify-email?email=${formData.email}`);
       }
     } catch (error: any) {
-      setAuthState({
-        isLoading: false,
-        error:
-          error.response?.data?.message || "An error occurred during signup",
-      });
+      setAuthState({ isLoading: false, error: null });
+      const errorMessage = error?.response?.data?.message;
+      toast.error(
+        (Array.isArray(errorMessage) ? errorMessage[0] : errorMessage) ||
+          "An error occurred during signup"
+      );
     }
   };
 
@@ -72,7 +97,7 @@ export default function SignupPage() {
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center">
-      <div className="w-full max-w-7xl flex justify-around mx-auto">
+      <div className="w-full max-w-7xl flex justify-around items-center mx-auto">
         <div className="flex w-full flex-col justify-center max-w-[488px] px-4 sm:px-6 xl:px-12">
           <div className="mx-auto w-full flex justify-center flex-col max-w-sm">
             <div className="mb-8 flex items-center flex-col">
@@ -146,66 +171,68 @@ export default function SignupPage() {
                 />
               </div>
 
-              {/* <div className="space-y-2">
-                <Input
-                  id="password"
-                  name="password"
-                  className="w-full max-w-[400px] bg-orange bg-opacity-5 focus:ring-none focus:outline-none focus:border-orange h-[60px] rounded-[10px] border border-beige"
-                  type="password"
-                  placeholder="Password"
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                />
-              </div> */}
-
-              <div className="relative w-full max-w-[400px]">
-                <Input
-                  id="password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Password"
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="w-full bg-orange bg-opacity-5 h-[60px] rounded-[10px] border border-beige pr-12"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-dark focus:outline-none"
-                  tabIndex={-1}
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
-                </button>
+              <div className="space-y-2">
+                <div className="relative w-full max-w-[400px]">
+                  <Input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Password must be 8 characters long"
+                    required
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="w-full bg-orange bg-opacity-5 h-[60px] rounded-[10px] border border-beige pr-12"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-dark focus:outline-none"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+                <p className="text-xs text-gray-600 max-w-[400px]">
+                  Must include at least 1 uppercase, 1 lowercase, 1 number, and
+                  1 special character.
+                </p>
               </div>
 
-              {/* <div className="space-y-2">
-                <Label>User Type</Label>
-                <RadioGroup
-                  defaultValue="ADMIN"
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      userType: value as "ADMIN",
-                    }))
-                  }
-                  className="flex gap-4"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="ADMIN" id="admin" />
-                    <Label htmlFor="admin">Admin</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="CUSTOMER" id="customer" />
-                    <Label htmlFor="customer">Customer</Label>
-                  </div>
-                </RadioGroup>
-              </div> */}
+              <div className="space-y-2">
+                <div className="relative w-full max-w-[400px]">
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showConfirm ? "text" : "password"}
+                    placeholder="Confirm Password"
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full bg-orange bg-opacity-5 h-[60px] rounded-[10px] border border-beige pr-12"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirm((prev) => !prev)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-dark focus:outline-none"
+                    tabIndex={-1}
+                  >
+                    {showConfirm ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+                {!passwordsMatch && confirmPassword.length > 0 && (
+                  <p className="text-xs text-red-500 max-w-[400px]">
+                    Passwords do not match.
+                  </p>
+                )}
+              </div>
 
               {authState.error && (
                 <p className="text-sm text-red-500">{authState.error}</p>

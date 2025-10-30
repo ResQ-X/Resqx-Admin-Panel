@@ -14,6 +14,11 @@ export const SIDEBAR_ITEMS = [
     href: "/dashboard/services",
     icon: "LayoutDashboard",
   },
+  {
+    title: "Fleet",
+    href: "/dashboard/fleet",
+    icon: "ClipboardList",
+  },
   // {
   //   title: "Live Operations",
   //   href: "/dashboard/operations",

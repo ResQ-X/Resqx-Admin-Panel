@@ -58,8 +58,6 @@ export default function Page() {
     googleMapsApiKey: MAP_API_KEY,
   });
 
-  console.log("All Professionals Data:", allProfessionalsData);
-
   const mapRef = useRef<google.maps.Map | null>(null);
   const hasCentered = useRef(false);
 
