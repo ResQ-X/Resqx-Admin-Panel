@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Raleway } from "next/font/google";
 import { LoadingProvider } from "@/providers/loading-providers";
 import { AuthProvider } from "@/contexts/auth.context";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
 
 const raleway = Raleway({
@@ -105,7 +107,10 @@ export default function RootLayout({
     <html lang="en" className={`${raleway.variable}`} suppressHydrationWarning>
       <body className={`antialiased`}>
         <LoadingProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            {children}
+            <ToastContainer position="top-right" autoClose={3000} />
+          </AuthProvider>
         </LoadingProvider>
       </body>
     </html>
