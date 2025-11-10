@@ -1,10 +1,26 @@
 "use client";
+import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/Select";
+import { Label } from "@/components/ui/Label";
 import { useState, useEffect, use } from "react";
 import axiosInstance from "@/lib/axios";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/Dialog";
 
 type Business = {
   id: string;
@@ -55,6 +71,10 @@ export default function EmergencyOrderPage({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<string>("");
+  const [isUpdating, setIsUpdating] = useState(false);
+
   useEffect(() => {
     const fetchEmergencyOrder = async () => {
       setIsLoading(true);
@@ -74,6 +94,26 @@ export default function EmergencyOrderPage({
       fetchEmergencyOrder();
     }
   }, [id]);
+
+  const handleStatusUpdate = async () => {
+    if (!selectedStatus) return;
+
+    try {
+      setIsUpdating(true);
+      await axiosInstance.patch(`/fleets/admin/order/${id}/status`, {
+        status: selectedStatus,
+      });
+      toast.success("Order status updated successfully");
+      // Update UI instantly
+      setOrder((prev) => (prev ? { ...prev, status: selectedStatus } : prev));
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error("Error updating order status:", err);
+      toast.error(`${err}`);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   if (isLoading)
     return <div className="p-6">Loading emergency order details...</div>;
@@ -237,6 +277,47 @@ export default function EmergencyOrderPage({
           <p className="text-gray-500">No assets linked to this order.</p>
         )}
       </div>
+
+      <Button
+        // onClick={() => setIsEditing(true)}
+        onClick={() => setIsModalOpen(true)}
+        className="bg-orange hover:bg-orange/90"
+      >
+        Edit Order
+      </Button>
+
+      {/* Edit Modal */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Order Status</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <Label htmlFor="status">Select New Status</Label>
+            <Select onValueChange={setSelectedStatus} value={selectedStatus}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="COMPLETED">COMPLETED</SelectItem>
+                <SelectItem value="CANCELLED">CANCELLED</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleStatusUpdate}
+              disabled={isUpdating || !selectedStatus}
+              className="bg-orange hover:bg-orange/90"
+            >
+              {isUpdating ? "Updating..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
