@@ -1,16 +1,13 @@
 "use client";
-import React, { useState } from "react";
-import { OrderTabs } from "@/components/orders/OrderTabs";
-import { OrdersTable } from "@/components/orders/OrdersTable";
+import React from "react";
+import { FleetTable } from "@/components/fleet/FleetTable";
 // import { MonthlyOverview } from "@/components/orders/monthly-overview"
 // import { OrderTrend } from "@/components/orders/order-trend"
 
 export default function OrdersPage() {
-  const [activeTab, setActiveTab] = useState("ALL");
-
   return (
     <div className="space-y-8">
-      <OrdersTable activeTab={activeTab} />
+      <FleetTable />
 
       {/* <MonthlyOverview />
       <OrderTrend /> */}
