@@ -280,44 +280,6 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
       </div>
 
       {/* Edit Mode Section */}
-      {/* {isEditing ? (
-        <div className="border-t pt-6">
-          <h2 className="text-lg font-semibold mb-4">Update Order Status</h2>
-          <div className="max-w-sm">
-            <Select
-              onValueChange={(value) => setUpdateStatus(value)}
-              defaultValue={order.status}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select new status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="COMPLETED">COMPLETED</SelectItem>
-                <SelectItem value="CANCELLED">CANCELLED</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex gap-4 mt-4">
-            <Button
-              onClick={handleStatusUpdate}
-              disabled={updating}
-              className="bg-orange hover:bg-orange/90"
-            >
-              {updating ? "Updating..." : "Save Changes"}
-            </Button>
-            <Button
-              variant="outline"
-              className="border-orange text-orange hover:bg-orange/10"
-              onClick={() => setIsEditing(false)}
-            >
-              Cancel
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <div className="flex justify-center gap-4">
-        </div>
-        )} */}
       <Button
         // onClick={() => setIsEditing(true)}
         onClick={() => setIsModalOpen(true)}
@@ -341,6 +303,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
               <SelectContent>
                 <SelectItem value="COMPLETED">COMPLETED</SelectItem>
                 <SelectItem value="CANCELLED">CANCELLED</SelectItem>
+                <SelectItem value="PENDING">PENDING</SelectItem>
               </SelectContent>
             </Select>
           </div>

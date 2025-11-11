@@ -297,7 +297,7 @@ export function OrderEdit({ order: initialOrder }: OrderEditProps) {
             <label className="text-sm text-gray-500">Pick Up Location</label>
             <Input
               // value={order.location.pickup}
-              value={order.from_address || order.location.pickup}
+              value={order?.from_address || order?.location?.pickup}
               onChange={(e) =>
                 setOrder({
                   ...order,
