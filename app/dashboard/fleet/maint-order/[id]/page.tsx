@@ -291,6 +291,7 @@ export default function MaintenanceOrderPage({
               <SelectContent>
                 <SelectItem value="COMPLETED">COMPLETED</SelectItem>
                 <SelectItem value="CANCELLED">CANCELLED</SelectItem>
+                <SelectItem value="PENDING">PENDING</SelectItem>
               </SelectContent>
             </Select>
           </div>
