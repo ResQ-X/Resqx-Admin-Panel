@@ -29,7 +29,7 @@ export function ServiceView({ service, onEdit }: ServiceViewProps) {
 
     setDeleting(true);
     try {
-      await axiosInstance.delete(`/resqx-services/${service.id}`, {
+      await axiosInstance.delete(`/resq-service/${service.id}`, {
         data: { password },
       });
 

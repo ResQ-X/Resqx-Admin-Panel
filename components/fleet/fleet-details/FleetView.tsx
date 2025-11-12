@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -268,9 +267,9 @@ function FuelServicesSection({ fuelServices }: { fuelServices: any[] }) {
               <th className="text-left p-2 text-sm font-medium">Fuel Type</th>
               <th className="text-left p-2 text-sm font-medium">Quantity</th>
               <th className="text-left p-2 text-sm font-medium">Status</th>
-              <th className="text-left p-2 text-sm font-medium">
+              {/* <th className="text-left p-2 text-sm font-medium">
                 Service Time
-              </th>
+              </th> */}
               <th className="text-left p-2 text-sm font-medium">Location</th>
               <th className="text-left p-2 text-sm font-medium">Note</th>
               <th className="text-left p-2 text-sm font-medium">Created At</th>
@@ -283,7 +282,7 @@ function FuelServicesSection({ fuelServices }: { fuelServices: any[] }) {
                 <td className="p-2 text-sm">{f.fuel_type}</td>
                 <td className="p-2 text-sm">{f.quantity}</td>
                 <td className="p-2 text-sm">{f.status}</td>
-                <td className="p-2 text-sm">{f.service_time_type}</td>
+                {/* <td className="p-2 text-sm">{f.service_time_type}</td> */}
                 <td className="p-2 text-sm">{f.location}</td>
                 <td className="p-2 text-sm">{f.note}</td>
                 <td className="p-2 text-sm">
