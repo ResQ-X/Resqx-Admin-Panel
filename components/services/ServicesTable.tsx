@@ -48,17 +48,17 @@ export function ServicesTable() {
   const fetchServices = async (page: number) => {
     try {
       setLoading(true);
-      const response = await axiosInstance.get(
-        `/resqx-services/get?page=${page}`
-      );
+      const response = await axiosInstance.get("/resq-service/get");
       setServices(response.data.data);
-      setTotalPages(response.data.totalPages || 1); // Adjust based on your API response
+      setTotalPages(response.data.totalPages || 1);
     } catch (error) {
       console.error("Failed to fetch services:", error);
     } finally {
       setLoading(false);
     }
   };
+
+  console.log("services", services);
 
   useEffect(() => {
     fetchServices(currentPage);

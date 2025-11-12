@@ -37,14 +37,14 @@ export function ServiceEdit({ service: initialService }: ServiceEditProps) {
     setSaving(true);
     try {
       const payload = {
-        service_id: service.id,
+        id: service.id,
         unit_price: parseFloat(service.unit_price),
         delivery_price: parseFloat(service.delivery_price),
         service_price: parseFloat(service.service_price),
         password,
       };
 
-      await axiosInstance.patch("/resqx-services/edit", payload);
+      await axiosInstance.patch("/resq-service/edit", payload);
 
       setShowSuccess(true);
     } catch (error) {

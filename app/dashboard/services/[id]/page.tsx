@@ -20,7 +20,7 @@ export default function OrderDetailsPage({
   useEffect(() => {
     const fetchOrder = async () => {
       try {
-        const response = await axiosInstance.get("/resqx-services/get");
+        const response = await axiosInstance.get("/resq-service/get");
         const foundOrder = response?.data?.data.find((o) => o.id === id);
         setService(foundOrder);
       } catch (error) {
