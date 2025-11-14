@@ -31,29 +31,37 @@ export function CreateServiceDialog({
     progress: 0,
   });
 
-  const handleCreateService = async (data: {
-    service_name: string;
-    unit_price: number;
-    delivery_price: number;
-    service_price: number;
-  }) => {
+  const handleCreateService = async (data: any) => {
     try {
       setState({ step: "creating", progress: 0 });
 
-      await axiosInstance.post("/resqx-services/create", data);
+      // Simulate progress
+      const progressInterval = setInterval(() => {
+        setState((prev) => ({
+          ...prev,
+          progress: Math.min(prev.progress + 10, 90),
+        }));
+      }, 200);
 
-      console.log("Data", data);
+      await axiosInstance.post("/resq-service/create", data);
 
+      clearInterval(progressInterval);
       setState({ step: "success", progress: 100 });
       onServiceCreated();
     } catch (error) {
       console.error("Failed to create service:", error);
+      alert("Failed to create service. Please try again.");
       setState({ step: "form", progress: 0 });
     }
   };
 
+  const handleClose = () => {
+    setState({ step: "form", progress: 0 });
+    onOpenChange(false);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="bg-[#FAF8F5] max-w-6xl">
         {state.step === "form" && (
           <>
@@ -71,7 +79,7 @@ export function CreateServiceDialog({
         )}
 
         {state.step === "success" && (
-          <CreateServiceSuccess onClose={() => onOpenChange(false)} />
+          <CreateServiceSuccess onClose={handleClose} />
         )}
       </DialogContent>
     </Dialog>
