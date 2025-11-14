@@ -38,8 +38,26 @@ export function ServiceEdit({ service: initialService }: ServiceEditProps) {
 
     setSaving(true);
     try {
+      // Convert numeric fields from strings to numbers
+      const numericFields = [
+        "delivery_price",
+        "service_price",
+        "pms_amount",
+        "diesel_amount",
+      ];
+      const processedService = { ...service };
+
+      numericFields.forEach((field) => {
+        if (
+          processedService[field] !== undefined &&
+          processedService[field] !== null
+        ) {
+          processedService[field] = Number(processedService[field]);
+        }
+      });
+
       const payload = {
-        ...service,
+        ...processedService,
         password,
       };
 
