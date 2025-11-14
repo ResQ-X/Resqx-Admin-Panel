@@ -8,17 +8,7 @@ import { ServiceSuccessDialog } from "./ServiceSuccessDialog";
 import axiosInstance from "@/lib/axios";
 
 interface ServiceEditProps {
-  service: ServiceDetails;
-}
-
-interface ServiceDetails {
-  created_at: Date;
-  delivery_price: string;
-  id: string;
-  name: string;
-  service_price: string;
-  unit_price: string;
-  updated_at: string;
+  service: any;
 }
 
 export function ServiceEdit({ service: initialService }: ServiceEditProps) {
@@ -27,6 +17,18 @@ export function ServiceEdit({ service: initialService }: ServiceEditProps) {
   const [password, setPassword] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  const formatLabel = (key: string) =>
+    key
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (l) => l.toUpperCase())
+      .replace("Id", "ID");
+
+  const formatValue = (value: any): string => {
+    if (value === null || value === undefined) return "";
+    if (typeof value === "object") return JSON.stringify(value);
+    return String(value);
+  };
 
   const handleSave = async () => {
     if (!password) {
@@ -37,16 +39,16 @@ export function ServiceEdit({ service: initialService }: ServiceEditProps) {
     setSaving(true);
     try {
       const payload = {
-        id: service.id,
-        unit_price: parseFloat(service.unit_price),
-        delivery_price: parseFloat(service.delivery_price),
-        service_price: parseFloat(service.service_price),
+        ...service,
         password,
       };
 
       await axiosInstance.patch("/resq-service/edit", payload);
-
       setShowSuccess(true);
+
+      setTimeout(() => {
+        router.back();
+      }, 1500);
     } catch (error) {
       console.error("Error updating service:", error);
       alert("Failed to update service.");
@@ -54,6 +56,19 @@ export function ServiceEdit({ service: initialService }: ServiceEditProps) {
       setSaving(false);
     }
   };
+
+  const handleChange = (key: string, value: string) => {
+    setService((prev: any) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const filteredEntries = Object.entries(service).filter(
+    ([key, value]) =>
+      !["id", "created_at", "updated_at", "name", "type"].includes(key) &&
+      typeof value !== "object"
+  );
 
   return (
     <div className="space-y-8">
@@ -66,83 +81,89 @@ export function ServiceEdit({ service: initialService }: ServiceEditProps) {
 
       <div>
         <h1 className="text-2xl font-semibold mb-4">Edit Service Details</h1>
+        <div className="flex items-center gap-4 mb-6">
+          <span className="text-gray-500">Service ID: {service?.id}</span>
+          <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+            {service?.market}
+          </span>
+        </div>
 
+        {/* Basic Fields */}
         <div className="grid grid-cols-3 gap-4 mt-10">
           <div className="space-y-2">
             <label className="text-sm text-gray-500">Service Name</label>
-            <Input value={service.name} disabled className="bg-white" />
+            <Input value={service.name} disabled className="bg-gray-100" />
           </div>
           <div className="space-y-2">
-            <label className="text-sm text-gray-500">Unit Price</label>
-            <Input
-              type="number"
-              value={service.unit_price}
-              onChange={(e) =>
-                setService({ ...service, unit_price: e.target.value })
-              }
-              className="bg-white"
-            />
+            <label className="text-sm text-gray-500">Service Type</label>
+            <Input value={service.type} disabled className="bg-gray-100" />
           </div>
           <div className="space-y-2">
-            <label className="text-sm text-gray-500">Delivery Price</label>
-            <Input
-              type="number"
-              value={service.delivery_price}
-              onChange={(e) =>
-                setService({ ...service, delivery_price: e.target.value })
-              }
-              className="bg-white"
-            />
+            <label className="text-sm text-gray-500">Market</label>
+            <Input value={service.market} disabled className="bg-gray-100" />
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4 mt-10">
-          <div className="space-y-2">
-            <label className="text-sm text-gray-500">Service Price</label>
-            <Input
-              type="number"
-              value={service.service_price}
-              onChange={(e) =>
-                setService({ ...service, service_price: e.target.value })
-              }
-              className="bg-white"
-            />
-          </div>
+        {/* Dynamic Editable Fields */}
+        <div className="grid grid-cols-3 gap-4 mt-6">
+          {filteredEntries.map(([key, value]) => (
+            <div key={key} className="space-y-2">
+              <label className="text-sm text-gray-500">
+                {formatLabel(key)}
+              </label>
+              <Input
+                type={
+                  key.includes("amount") ||
+                  key.includes("price") ||
+                  !isNaN(Number(value))
+                    ? "number"
+                    : "text"
+                }
+                value={formatValue(value)}
+                onChange={(e) => handleChange(key, e.target.value)}
+                className="bg-white"
+              />
+            </div>
+          ))}
+
           <div className="space-y-2">
             <label className="text-sm text-gray-500">Created At</label>
             <Input
               value={new Date(service.created_at).toLocaleDateString()}
               disabled
-              className="bg-white"
+              className="bg-gray-100"
             />
           </div>
+
           <div className="space-y-2">
-            <label className="text-sm text-gray-500">Admin Password</label>
+            <label className="text-sm text-gray-500 font-semibold">
+              Admin Password *
+            </label>
             <Input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="bg-white"
-              placeholder="Enter password to confirm"
+              placeholder="Required to save changes"
+              className="bg-white border-orange"
             />
           </div>
         </div>
       </div>
 
-      {/* <div className="flex justify-center">
-        <Button onClick={handleSave} className="bg-orange hover:bg-orange/90">
-          {saving ? "Saving..." : "Save Changes"}
-        </Button>
-      </div> */}
-
       <div className="flex justify-center gap-4">
-        <Button onClick={handleSave} className="bg-orange hover:bg-orange/90">
-          {saving ? "Saving..." : "Save"}
+        <Button
+          onClick={handleSave}
+          className="bg-orange hover:bg-orange/90"
+          disabled={saving || !password}
+        >
+          {saving ? "Saving..." : "Save Changes"}
         </Button>
 
         <Button
           variant="outline"
           className="border-orange text-orange hover:bg-orange/10"
+          onClick={() => router.back()}
+          disabled={saving}
         >
           Cancel
         </Button>

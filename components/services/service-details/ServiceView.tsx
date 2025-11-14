@@ -9,7 +9,6 @@ import { useState } from "react";
 import axiosInstance from "@/lib/axios";
 
 interface ServiceViewProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   service: any;
   onEdit: () => void;
 }
@@ -29,7 +28,7 @@ export function ServiceView({ service, onEdit }: ServiceViewProps) {
 
     setDeleting(true);
     try {
-      await axiosInstance.delete(`/resq-service/${service.id}`, {
+      await axiosInstance.delete(`/resq-service/details/${service.id}`, {
         data: { password },
       });
 
@@ -45,6 +44,30 @@ export function ServiceView({ service, onEdit }: ServiceViewProps) {
     }
   };
 
+  const formatLabel = (key: string) =>
+    key
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (l) => l.toUpperCase())
+      .replace("Id", "ID");
+
+  const formatValue = (value: any): string => {
+    if (value === null || value === undefined) return "—";
+    if (typeof value === "object") return JSON.stringify(value);
+    return String(value);
+  };
+
+  const filteredEntries = Object.entries(service).filter(
+    ([key, value]) =>
+      ![
+        "id",
+        "created_at",
+        "updated_at",
+        "name",
+        "type",
+        "service_price",
+      ].includes(key) && typeof value !== "object"
+  );
+
   return (
     <div className="space-y-8">
       <div className="flex items-center gap-4">
@@ -58,41 +81,47 @@ export function ServiceView({ service, onEdit }: ServiceViewProps) {
         <h1 className="text-2xl font-semibold mb-4">Service Details</h1>
         <div className="flex items-center gap-4">
           <span className="text-gray-500">Service ID: {service?.id}</span>
+          <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+            {service?.market}
+          </span>
         </div>
 
         <div className="space-y-4 mt-10">
+          {/* Primary Fields */}
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <label className="text-sm text-gray-500">Service Name</label>
               <Input value={service?.name} disabled className="bg-white" />
             </div>
             <div className="space-y-2">
-              <label className="text-sm text-gray-500">Unit Price</label>
-              <Input
-                value={service?.unit_price}
-                disabled
-                className="bg-white"
-              />
+              <label className="text-sm text-gray-500">Type</label>
+              <Input value={service?.type} disabled className="bg-white" />
             </div>
             <div className="space-y-2">
-              <label className="text-sm text-gray-500">Delivery Price</label>
+              <label className="text-sm text-gray-500">Service Price</label>
               <Input
-                value={service?.delivery_price}
+                value={`₦${service?.service_price}`}
                 disabled
                 className="bg-white"
               />
             </div>
           </div>
 
+          {/* Dynamic Fields */}
           <div className="grid grid-cols-3 gap-4 mt-10">
-            <div className="space-y-2">
-              <label className="text-sm text-gray-500">Service Price</label>
-              <Input
-                value={service?.service_price}
-                disabled
-                className="bg-white"
-              />
-            </div>
+            {filteredEntries.map(([key, value]) => (
+              <div key={key} className="space-y-2">
+                <label className="text-sm text-gray-500">
+                  {formatLabel(key)}
+                </label>
+                <Input
+                  value={formatValue(value)}
+                  disabled
+                  className="bg-white"
+                />
+              </div>
+            ))}
+
             <div className="space-y-2">
               <label className="text-sm text-gray-500">Created At</label>
               <Input
@@ -101,19 +130,20 @@ export function ServiceView({ service, onEdit }: ServiceViewProps) {
                 className="bg-white"
               />
             </div>
-            {showPasswordField && (
-              <div className="space-y-2">
-                <label className="text-sm text-gray-500">Admin Password</label>
-                <Input
-                  type="password"
-                  placeholder="Enter password to confirm"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="bg-white"
-                />
-              </div>
-            )}
           </div>
+
+          {showPasswordField && (
+            <div className="space-y-2 mt-4">
+              <label className="text-sm text-gray-500">Admin Password</label>
+              <Input
+                type="password"
+                placeholder="Enter password to confirm"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="bg-white"
+              />
+            </div>
+          )}
         </div>
       </div>
 
