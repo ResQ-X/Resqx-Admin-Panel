@@ -1,27 +1,16 @@
 "use client";
-import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Label } from "@/components/ui/Label";
-import { useState, useEffect, use } from "react";
 import axiosInstance from "@/lib/axios";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription,
-} from "@/components/ui/Dialog";
-import { cn } from "@/lib/utils";
 
 type Business = {
   id: string;
   name: string;
   company_name: string;
   company_address: string | null;
+  tax_id: string | null;
+  cac: string | null;
   email: string;
   company_email: string;
   country: string;
@@ -29,6 +18,9 @@ type Business = {
   company_phone: string;
   is_verified: boolean;
   created_at: string;
+  updated_at: string;
+  role: string;
+  super_account_id: string | null;
 };
 
 type Overdraft = {
@@ -44,339 +36,319 @@ type Overdraft = {
   updated_at: string;
 };
 
-export default function Page({ params }: { params: Promise<{ id: string }> }) {
+type GetOverdraftsResponse = {
+  data: Overdraft[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+  };
+};
+
+export default function OverdraftDetailPage() {
+  const params = useParams();
   const router = useRouter();
-  const { id } = use(params);
   const [overdraft, setOverdraft] = useState<Overdraft | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
-  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     const fetchOverdraft = async () => {
-      setIsLoading(true);
-      setError(null);
       try {
-        const response = await axiosInstance.get(
-          `/fleet-overdrafts/admin/overdrafts/${id}`
+        const response = await axiosInstance.get<GetOverdraftsResponse>(
+          "/fleet-overdrafts/admin/overdrafts"
         );
-        setOverdraft(response?.data?.data);
-      } catch (err) {
-        console.error("Error fetching overdraft:", err);
-        setError("Failed to load overdraft details");
+
+        const foundOverdraft = response.data?.data?.find(
+          (item) => item.id === params.id
+        );
+
+        if (foundOverdraft) {
+          setOverdraft(foundOverdraft);
+        } else {
+          console.error("Overdraft not found");
+        }
+      } catch (error) {
+        console.error("Error fetching overdraft:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    if (id) fetchOverdraft();
-  }, [id]);
-
-  const handleApprove = async () => {
-    try {
-      setIsUpdating(true);
-      await axiosInstance.patch(
-        `/fleet-overdrafts/admin/overdrafts/${id}/approve`
-      );
-      toast.success("Overdraft approved successfully");
-      setOverdraft((prev) =>
-        prev
-          ? {
-              ...prev,
-              status: "APPROVED",
-              approvedAt: new Date().toISOString(),
-            }
-          : prev
-      );
-      setIsApproveModalOpen(false);
-    } catch (err) {
-      console.error("Error approving overdraft:", err);
-      toast.error("Failed to approve overdraft");
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  const handleReject = async () => {
-    try {
-      setIsUpdating(true);
-      await axiosInstance.patch(
-        `/fleet-overdrafts/admin/overdrafts/${id}/reject`
-      );
-      toast.success("Overdraft rejected successfully");
-      setOverdraft((prev) => (prev ? { ...prev, status: "REJECTED" } : prev));
-      setIsRejectModalOpen(false);
-    } catch (err) {
-      console.error("Error rejecting overdraft:", err);
-      toast.error("Failed to reject overdraft");
-    } finally {
-      setIsUpdating(false);
-    }
-  };
+    if (params.id) fetchOverdraft();
+  }, [params.id]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "APPROVED":
-        return "text-[#00B69B] bg-[#00B69B]/10";
+        return "bg-green-100 text-green-800";
       case "PENDING":
-        return "text-[#FCBE2D] bg-[#FCBE2D]/10";
+        return "bg-yellow-100 text-yellow-800";
       case "REJECTED":
-        return "text-[#EF4444] bg-[#EF4444]/10";
+        return "bg-red-100 text-red-800";
       default:
-        return "text-gray-600 bg-gray-100";
+        return "bg-gray-100 text-gray-800";
     }
   };
 
-  const getStatusDotColor = (status: string) => {
-    switch (status) {
-      case "APPROVED":
-        return "bg-[#00B69B]";
-      case "PENDING":
-        return "bg-[#FCBE2D]";
-      case "REJECTED":
-        return "bg-[#EF4444]";
-      default:
-        return "bg-gray-400";
-    }
-  };
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <svg
+            className="animate-spin h-8 w-8 text-orange mx-auto mb-2"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+            />
+          </svg>
+          <p className="text-sm text-gray-500">Loading overdraft details...</p>
+        </div>
+      </div>
+    );
+  }
 
-  if (isLoading) return <div className="p-6">Loading overdraft details...</div>;
-  if (error) return <div className="p-6 text-red-500">{error}</div>;
-  if (!overdraft) return <div className="p-6">No overdraft details found.</div>;
+  if (!overdraft) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-lg text-gray-700">Overdraft not found</p>
+          <button
+            onClick={() => router.back()}
+            className="mt-4 text-orange hover:underline"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-8">
-      {/* Back Button */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" onClick={() => router.back()}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
-        </Button>
-      </div>
-
-      {/* Overdraft Header */}
-      <div>
-        <h1 className="text-2xl font-semibold mb-4">Overdraft Details</h1>
-        <div className="flex items-center gap-6">
-          <span className="text-gray-500">
-            Overdraft ID: {overdraft.id.split("-")[0]}
-          </span>
-          <div className="flex items-center gap-2">
-            <span className="text-gray-500">Status:</span>
-            <span
-              className={cn(
-                "inline-flex items-center px-3 py-1 gap-2 rounded-full text-xs font-medium",
-                getStatusColor(overdraft.status)
-              )}
-            >
-              <div
-                className={cn(
-                  "w-2 h-2 rounded-full",
-                  getStatusDotColor(overdraft.status)
-                )}
-              />
-              {overdraft.status}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-gray-500">Amount:</span>
-            <span className="text-gray-800 font-semibold">
-              ₦{parseFloat(overdraft.amount).toLocaleString()}
-            </span>
-          </div>
+    <div className="p-6 max-w-5xl mx-auto">
+      {/* Header */}
+      <div className="mb-6 flex items-center gap-4">
+        <button
+          onClick={() => router.back()}
+          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+        <div>
+          <h1 className="text-2xl font-bold">Overdraft Details</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            View complete overdraft information
+          </p>
         </div>
       </div>
 
-      {/* Overdraft Information */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Overdraft Information</h2>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label className="text-sm text-gray-500">Amount</Label>
-            <Input
-              value={`₦${parseFloat(overdraft.amount).toLocaleString()}`}
-              disabled
-              className="bg-white"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-sm text-gray-500">Created Date</Label>
-            <Input
-              value={new Date(overdraft.created_at).toLocaleString()}
-              disabled
-              className="bg-white"
-            />
-          </div>
-          <div className="space-y-2 col-span-2">
-            <Label className="text-sm text-gray-500">Reason</Label>
-            <Input value={overdraft.reason} disabled className="bg-white" />
-          </div>
-          {overdraft.approvedAt && (
-            <div className="space-y-2">
-              <Label className="text-sm text-gray-500">Approved Date</Label>
-              <Input
-                value={new Date(overdraft.approvedAt).toLocaleString()}
-                disabled
-                className="bg-white"
-              />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Overdraft Information */}
+        <div className="bg-white rounded-xl p-6 shadow-sm">
+          <h2 className="text-lg font-semibold mb-4 border-b pb-2">
+            Overdraft Information
+          </h2>
+          <div className="space-y-4">
+            <div>
+              <span className="text-sm text-gray-500">Overdraft ID</span>
+              <p className="font-medium text-sm break-all">{overdraft.id}</p>
             </div>
-          )}
-        </div>
-      </div>
 
-      {/* Business Information */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Business Information</h2>
-        <div className="grid grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <Label className="text-sm text-gray-500">Business Name</Label>
-            <Input
-              value={overdraft.business?.name || "N/A"}
-              disabled
-              className="bg-white"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-sm text-gray-500">Company Name</Label>
-            <Input
-              value={overdraft.business?.company_name || "N/A"}
-              disabled
-              className="bg-white"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-sm text-gray-500">Email</Label>
-            <Input
-              value={
-                overdraft.business?.company_email ||
-                overdraft.business?.email ||
-                "N/A"
-              }
-              disabled
-              className="bg-white"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-sm text-gray-500">Phone</Label>
-            <Input
-              value={
-                overdraft.business?.company_phone ||
-                overdraft.business?.phone ||
-                "N/A"
-              }
-              disabled
-              className="bg-white"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-sm text-gray-500">Country</Label>
-            <Input
-              value={overdraft.business?.country || "N/A"}
-              disabled
-              className="bg-white"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-sm text-gray-500">Verification Status</Label>
-            <Input
-              value={
-                overdraft.business?.is_verified ? "Verified" : "Not Verified"
-              }
-              disabled
-              className="bg-white"
-            />
-          </div>
-          {overdraft.business?.company_address && (
-            <div className="space-y-2 col-span-3">
-              <Label className="text-sm text-gray-500">Address</Label>
-              <Input
-                value={overdraft.business.company_address}
-                disabled
-                className="bg-white"
-              />
+            <div>
+              <span className="text-sm text-gray-500">Amount</span>
+              <p className="font-bold text-xl text-orange">
+                ₦{parseFloat(overdraft.amount).toLocaleString()}
+              </p>
             </div>
-          )}
+
+            <div>
+              <span className="text-sm text-gray-500">Reason</span>
+              <p className="font-medium">{overdraft.reason}</p>
+            </div>
+
+            <div>
+              <span className="text-sm text-gray-500">Status</span>
+              <div className="mt-1">
+                <span
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
+                    overdraft.status
+                  )}`}
+                >
+                  {overdraft.status}
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <span className="text-sm text-gray-500">Created At</span>
+              <p className="font-medium">
+                {new Date(overdraft.created_at).toLocaleString()}
+              </p>
+            </div>
+
+            <div>
+              <span className="text-sm text-gray-500">Updated At</span>
+              <p className="font-medium">
+                {new Date(overdraft.updated_at).toLocaleString()}
+              </p>
+            </div>
+
+            {overdraft.approvedAt && (
+              <div>
+                <span className="text-sm text-gray-500">Approved At</span>
+                <p className="font-medium">
+                  {new Date(overdraft.approvedAt).toLocaleString()}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Business Information */}
+        <div className="bg-white rounded-xl p-6 shadow-sm">
+          <h2 className="text-lg font-semibold mb-4 border-b pb-2">
+            Business Information
+          </h2>
+          <div className="space-y-4">
+            <div>
+              <span className="text-sm text-gray-500">Business ID</span>
+              <p className="font-medium text-sm break-all">
+                {overdraft.business.id}
+              </p>
+            </div>
+
+            <div>
+              <span className="text-sm text-gray-500">Business Name</span>
+              <p className="font-medium">{overdraft.business.name}</p>
+            </div>
+
+            <div>
+              <span className="text-sm text-gray-500">Company Name</span>
+              <p className="font-medium">{overdraft.business.company_name}</p>
+            </div>
+
+            <div>
+              <span className="text-sm text-gray-500">Email</span>
+              <p className="font-medium">{overdraft.business.email}</p>
+            </div>
+
+            <div>
+              <span className="text-sm text-gray-500">Company Email</span>
+              <p className="font-medium">{overdraft.business.company_email}</p>
+            </div>
+
+            <div>
+              <span className="text-sm text-gray-500">Phone</span>
+              <p className="font-medium">{overdraft.business.phone}</p>
+            </div>
+
+            <div>
+              <span className="text-sm text-gray-500">Company Phone</span>
+              <p className="font-medium">{overdraft.business.company_phone}</p>
+            </div>
+
+            <div>
+              <span className="text-sm text-gray-500">Country</span>
+              <p className="font-medium">{overdraft.business.country}</p>
+            </div>
+
+            {overdraft.business.company_address && (
+              <div>
+                <span className="text-sm text-gray-500">Company Address</span>
+                <p className="font-medium">
+                  {overdraft.business.company_address}
+                </p>
+              </div>
+            )}
+
+            {overdraft.business.tax_id && (
+              <div>
+                <span className="text-sm text-gray-500">Tax ID</span>
+                <p className="font-medium">{overdraft.business.tax_id}</p>
+              </div>
+            )}
+
+            {overdraft.business.cac && (
+              <div>
+                <span className="text-sm text-gray-500">CAC</span>
+                <p className="font-medium">{overdraft.business.cac}</p>
+              </div>
+            )}
+
+            <div>
+              <span className="text-sm text-gray-500">Role</span>
+              <p className="font-medium">{overdraft.business.role}</p>
+            </div>
+
+            <div>
+              <span className="text-sm text-gray-500">Verified Status</span>
+              <div className="mt-1">
+                <span
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                    overdraft.business.is_verified
+                      ? "bg-green-100 text-green-800"
+                      : "bg-gray-100 text-gray-800"
+                  }`}
+                >
+                  {overdraft.business.is_verified ? "Verified" : "Not Verified"}
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <span className="text-sm text-gray-500">Business Created At</span>
+              <p className="font-medium">
+                {new Date(overdraft.business.created_at).toLocaleString()}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Admin & Approval Information */}
+        <div className="bg-white rounded-xl p-6 shadow-sm lg:col-span-2">
+          <h2 className="text-lg font-semibold mb-4 border-b pb-2">
+            Admin & Approval Information
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <span className="text-sm text-gray-500">Admin ID</span>
+              <p className="font-medium text-sm break-all">
+                {overdraft.adminId}
+              </p>
+            </div>
+
+            {overdraft.approvedById && (
+              <div>
+                <span className="text-sm text-gray-500">Approved By ID</span>
+                <p className="font-medium text-sm break-all">
+                  {overdraft.approvedById}
+                </p>
+              </div>
+            )}
+
+            {overdraft.approvedAt && (
+              <div>
+                <span className="text-sm text-gray-500">Approval Date</span>
+                <p className="font-medium">
+                  {new Date(overdraft.approvedAt).toLocaleDateString()}
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-
-      {/* Action Buttons */}
-      {overdraft.status === "PENDING" && (
-        <div className="flex gap-4">
-          <Button
-            onClick={() => setIsApproveModalOpen(true)}
-            className="bg-[#00B69B] hover:bg-[#00B69B]/90 text-white"
-          >
-            Approve Overdraft
-          </Button>
-          <Button
-            onClick={() => setIsRejectModalOpen(true)}
-            className="bg-white text-[#EF4444] border border-[#EF4444] hover:bg-[#EF4444]/10"
-          >
-            Reject Overdraft
-          </Button>
-        </div>
-      )}
-
-      {/* Approve Modal */}
-      <Dialog open={isApproveModalOpen} onOpenChange={setIsApproveModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Approve Overdraft</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to approve this overdraft of ₦
-              {parseFloat(overdraft.amount).toLocaleString()} for{" "}
-              {overdraft.business?.company_name}?
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsApproveModalOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleApprove}
-              disabled={isUpdating}
-              className="bg-[#00B69B] hover:bg-[#00B69B]/90 text-white"
-            >
-              {isUpdating ? "Approving..." : "Approve"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Reject Modal */}
-      <Dialog open={isRejectModalOpen} onOpenChange={setIsRejectModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Reject Overdraft</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to reject this overdraft of ₦
-              {parseFloat(overdraft.amount).toLocaleString()} for{" "}
-              {overdraft.business?.company_name}?
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsRejectModalOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleReject}
-              disabled={isUpdating}
-              className="bg-[#EF4444] hover:bg-[#EF4444]/90 text-white"
-            >
-              {isUpdating ? "Rejecting..." : "Reject"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
