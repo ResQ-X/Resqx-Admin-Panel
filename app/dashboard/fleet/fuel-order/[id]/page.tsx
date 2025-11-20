@@ -64,13 +64,20 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const [order, setOrder] = useState<FuelOrder | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  // const [isEditing, setIsEditing] = useState(false);
-  // const [updating, setUpdating] = useState(false);
-  // const [updateStatus, setUpdateStatus] = useState<string>("");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<string>("");
   const [isUpdating, setIsUpdating] = useState(false);
+
+  const [isOverdraftModalOpen, setIsOverdraftModalOpen] = useState(false);
+  const [overdraftAmount, setOverdraftAmount] = useState("");
+  const [overdraftReason, setOverdraftReason] = useState("");
+  const [isCreatingOverdraft, setIsCreatingOverdraft] = useState(false);
+
+  const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
+  const [refundAmount, setRefundAmount] = useState("");
+  const [refundReason, setRefundReason] = useState("");
+  const [isCreatingRefund, setIsCreatingRefund] = useState(false);
 
   useEffect(() => {
     const fetchFuelOrder = async () => {
@@ -99,7 +106,6 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
         status: selectedStatus,
       });
       toast.success("Order status updated successfully");
-      // Update UI instantly
       setOrder((prev) => (prev ? { ...prev, status: selectedStatus } : prev));
       setIsModalOpen(false);
     } catch (err) {
@@ -107,6 +113,74 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
       toast.error(`${err}`);
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleCreateOverdraft = async () => {
+    if (!overdraftAmount || !overdraftReason) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    if (!order?.business?.id) {
+      toast.error("Business information not available");
+      return;
+    }
+
+    try {
+      setIsCreatingOverdraft(true);
+      await axiosInstance.post("/fleet-overdrafts/", {
+        businessId: order.business.id,
+        amount: parseFloat(overdraftAmount),
+        reason: overdraftReason,
+      });
+      setIsCreatingOverdraft(false);
+      toast.success("Overdraft created successfully");
+      setIsOverdraftModalOpen(false);
+      setOverdraftAmount("");
+      setOverdraftReason("");
+    } catch (err) {
+      console.error("Error creating overdraft:", err);
+      toast.error("Failed to create overdraft");
+    } finally {
+      setIsCreatingOverdraft(false);
+    }
+  };
+
+  const handleCreateRefund = async () => {
+    if (!refundAmount || !refundReason) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    if (!order?.business?.id) {
+      toast.error("Business information not available");
+      return;
+    }
+
+    if (!order?.id) {
+      toast.error("Order information not available");
+      return;
+    }
+
+    try {
+      setIsCreatingRefund(true);
+      await axiosInstance.post("/fleet-overdrafts/refund/", {
+        businessId: order.business.id,
+        amount: parseFloat(refundAmount),
+        reason: refundReason,
+        orderId: order.id,
+      });
+      setIsCreatingRefund(false);
+      toast.success("Refund created successfully");
+      setIsRefundModalOpen(false);
+      setRefundAmount("");
+      setRefundReason("");
+    } catch (err) {
+      console.error("Error creating refund:", err);
+      toast.error("Failed to create refund");
+    } finally {
+      setIsCreatingRefund(false);
     }
   };
 
@@ -279,16 +353,33 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
         )}
       </div>
 
-      {/* Edit Mode Section */}
-      <Button
-        // onClick={() => setIsEditing(true)}
-        onClick={() => setIsModalOpen(true)}
-        className="bg-orange hover:bg-orange/90"
-      >
-        Edit Order
-      </Button>
+      <div className="flex gap-8">
+        {/* Edit Mode Section */}
+        <Button
+          onClick={() => setIsModalOpen(true)}
+          className="bg-orange hover:bg-orange/90"
+        >
+          Edit Order
+        </Button>
 
-      {/* Edit Modal */}
+        {/* OverDraft Mode Section */}
+        <Button
+          onClick={() => setIsOverdraftModalOpen(true)}
+          className="bg-white text-orange border border-orange hover:bg-orange/10"
+        >
+          Create Overdraft
+        </Button>
+
+        {/* OverDraft Mode Section */}
+        <Button
+          onClick={() => setIsRefundModalOpen(true)}
+          className="bg-orange hover:bg-orange/90"
+        >
+          Create Refund
+        </Button>
+      </div>
+
+      {/* Edit Order Status Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent>
           <DialogHeader>
@@ -317,6 +408,115 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
               className="bg-orange hover:bg-orange/90"
             >
               {isUpdating ? "Updating..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Overdraft Modal */}
+      <Dialog
+        open={isOverdraftModalOpen}
+        onOpenChange={setIsOverdraftModalOpen}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create Overdraft</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="amount">Amount</Label>
+              <Input
+                id="amount"
+                type="number"
+                placeholder="Enter amount"
+                value={overdraftAmount}
+                onChange={(e) => setOverdraftAmount(e.target.value)}
+                step="0.01"
+                min="0"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="reason">Reason</Label>
+              <Input
+                id="reason"
+                type="text"
+                placeholder="Enter reason for overdraft"
+                value={overdraftReason}
+                onChange={(e) => setOverdraftReason(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsOverdraftModalOpen(false);
+                setOverdraftAmount("");
+                setOverdraftReason("");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateOverdraft}
+              disabled={
+                isCreatingOverdraft || !overdraftAmount || !overdraftReason
+              }
+              className="bg-orange hover:bg-orange/90"
+            >
+              {isCreatingOverdraft ? "Creating..." : "Create Overdraft"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Refund Modal */}
+      <Dialog open={isRefundModalOpen} onOpenChange={setIsRefundModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create Refund</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="amount">Amount</Label>
+              <Input
+                id="amount"
+                type="number"
+                placeholder="Enter amount"
+                value={refundAmount}
+                onChange={(e) => setRefundAmount(e.target.value)}
+                step="0.01"
+                min="0"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="reason">Reason</Label>
+              <Input
+                id="reason"
+                type="text"
+                placeholder="Enter reason for overdraft"
+                value={refundReason}
+                onChange={(e) => setRefundReason(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsRefundModalOpen(false);
+                setRefundAmount("");
+                setRefundReason("");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateRefund}
+              disabled={isCreatingRefund || !refundAmount || !refundReason}
+              className="bg-orange hover:bg-orange/90"
+            >
+              {isCreatingRefund ? "Creating..." : "Create Refund"}
             </Button>
           </DialogFooter>
         </DialogContent>
