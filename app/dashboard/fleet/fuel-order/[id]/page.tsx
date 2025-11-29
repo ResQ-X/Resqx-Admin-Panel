@@ -79,6 +79,41 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const [refundReason, setRefundReason] = useState("");
   const [isCreatingRefund, setIsCreatingRefund] = useState(false);
 
+  const [isLogModalOpen, setIsLogModalOpen] = useState(false);
+  const [logAmount, setLogAmount] = useState("");
+  const [logReason, setLogReason] = useState("");
+  const [isCreatingLog, setIsCreatingLog] = useState(false);
+
+  const [isBulkLogModalOpen, setIsBulkLogModalOpen] = useState(false);
+  const [bulkLogs, setBulkLogs] = useState<
+    Array<{
+      id: string;
+      amount: string;
+      notes: string;
+      asset_id?: string;
+    }>
+  >([{ id: crypto.randomUUID(), amount: "", notes: "" }]);
+  const [isCreatingBulkLogs, setIsCreatingBulkLogs] = useState(false);
+
+  const addBulkLogEntry = () => {
+    setBulkLogs([
+      ...bulkLogs,
+      { id: crypto.randomUUID(), amount: "", notes: "" },
+    ]);
+  };
+
+  const removeBulkLogEntry = (id: string) => {
+    if (bulkLogs.length > 1) {
+      setBulkLogs(bulkLogs.filter((log) => log.id !== id));
+    }
+  };
+
+  const updateBulkLogEntry = (id: string, field: string, value: string) => {
+    setBulkLogs(
+      bulkLogs.map((log) => (log.id === id ? { ...log, [field]: value } : log))
+    );
+  };
+
   useEffect(() => {
     const fetchFuelOrder = async () => {
       setIsLoading(true);
@@ -181,6 +216,131 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
       toast.error("Failed to create refund");
     } finally {
       setIsCreatingRefund(false);
+    }
+  };
+
+  const handleCreateLog = async () => {
+    if (!logAmount || !logReason) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    if (!order?.business?.id) {
+      toast.error("Business information not available");
+      return;
+    }
+
+    if (!order?.id) {
+      toast.error("Order information not available");
+      return;
+    }
+
+    try {
+      setIsCreatingLog(true);
+
+      // Get the first asset if available
+      const asset =
+        order.assets && order.assets.length > 0 ? order.assets[0] : null;
+
+      const payload = {
+        order_id: order.id,
+        asset_id: asset?.id || null,
+        business_id: order.business.id,
+        amount: parseFloat(logAmount),
+        items: {
+          fuel_type: order.fuel_type,
+          litres: order.quantity,
+        },
+        metadata: {
+          notes: logReason,
+        },
+        fulfilled_at: new Date().toISOString(),
+        service_type: "fuel",
+        status: order.status.toLowerCase(),
+        location_name: order.location,
+        latitude: parseFloat(order.location_latitude) || 0,
+        longitude: parseFloat(order.location_longitude) || 0,
+        fuel_volume: order.quantity,
+        currency: "NGN",
+        tags: ["admin-logged"],
+      };
+
+      await axiosInstance.post("/fleet-order-logging/", payload);
+
+      toast.success("Log created successfully");
+      setIsLogModalOpen(false);
+      setLogAmount("");
+      setLogReason("");
+    } catch (err) {
+      console.error("Error creating log:", err);
+      toast.error("Failed to create log");
+    } finally {
+      setIsCreatingLog(false);
+    }
+  };
+
+  const handleCreateBulkLogs = async () => {
+    // Validate all entries
+    const invalidEntries = bulkLogs.filter((log) => !log.amount || !log.notes);
+    if (invalidEntries.length > 0) {
+      toast.error("Please fill in amount and notes for all log entries");
+      return;
+    }
+
+    if (!order?.business?.id || !order?.id) {
+      toast.error("Order or business information not available");
+      return;
+    }
+
+    try {
+      setIsCreatingBulkLogs(true);
+
+      // Build the payload for bulk creation
+      const payload = bulkLogs.map((log) => {
+        // Updated logic: check for asset_id and that it's not "none"
+        const asset =
+          log.asset_id && log.asset_id !== "none"
+            ? order.assets?.find((a) => a.id === log.asset_id)
+            : order.assets && order.assets.length > 0
+            ? order.assets[0]
+            : null;
+
+        return {
+          order_id: order.id,
+          asset_id: asset?.id || null,
+          business_id: order.business.id,
+          amount: parseFloat(log.amount),
+          items: {
+            fuel_type: order.fuel_type,
+            litres: order.quantity,
+          },
+          metadata: {
+            notes: log.notes,
+          },
+          fulfilled_at: new Date().toISOString(),
+          service_type: "fuel",
+          status: order.status.toLowerCase(),
+          location_name: order.location,
+          latitude: parseFloat(order.location_latitude) || 0,
+          longitude: parseFloat(order.location_longitude) || 0,
+          fuel_volume: order.quantity,
+          currency: "NGN",
+          tags: ["admin-logged", "bulk-created"],
+        };
+      });
+
+      await axiosInstance.post("/fleet-order-logging/bulk", { logs: payload });
+
+      toast.success(`${bulkLogs.length} log(s) created successfully`);
+      setIsBulkLogModalOpen(false);
+      setBulkLogs([
+        { id: crypto.randomUUID(), amount: "", notes: "" }, // Remove asset_id: ""
+      ]);
+    } catch (err) {
+      console.error("Error creating bulk logs:", err);
+      toast.error("Failed to create bulk logs");
+    } finally {
+      setIsCreatingBulkLogs(false);
     }
   };
 
@@ -370,12 +530,27 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
           Create Overdraft
         </Button>
 
-        {/* OverDraft Mode Section */}
+        {/* Refund Mode Section */}
         <Button
           onClick={() => setIsRefundModalOpen(true)}
           className="bg-orange hover:bg-orange/90"
         >
           Create Refund
+        </Button>
+
+        {/* Logging Mode Section */}
+        <Button
+          onClick={() => setIsLogModalOpen(true)}
+          className="bg-white text-orange border border-orange hover:bg-orange/10"
+        >
+          Create Log
+        </Button>
+
+        <Button
+          onClick={() => setIsBulkLogModalOpen(true)}
+          className="bg-orange hover:bg-orange/90"
+        >
+          Create Bulk Logs
         </Button>
       </div>
 
@@ -517,6 +692,186 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
               className="bg-orange hover:bg-orange/90"
             >
               {isCreatingRefund ? "Creating..." : "Create Refund"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Log Modal */}
+      <Dialog open={isLogModalOpen} onOpenChange={setIsLogModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create Log</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="log-amount">Amount</Label>
+              <Input
+                id="log-amount"
+                type="number"
+                placeholder="Enter amount"
+                value={logAmount}
+                onChange={(e) => setLogAmount(e.target.value)}
+                step="0.01"
+                min="0"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="log-reason">Notes</Label>
+              <Input
+                id="log-reason"
+                type="text"
+                placeholder="Enter notes for log"
+                value={logReason}
+                onChange={(e) => setLogReason(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsLogModalOpen(false);
+                setLogAmount("");
+                setLogReason("");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateLog}
+              disabled={isCreatingLog || !logAmount || !logReason}
+              className="bg-orange hover:bg-orange/90"
+            >
+              {isCreatingLog ? "Creating..." : "Create Log"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Log Modal */}
+      <Dialog open={isBulkLogModalOpen} onOpenChange={setIsBulkLogModalOpen}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Create Multiple Logs</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            {bulkLogs.map((log, index) => (
+              <div
+                key={log.id}
+                className="border border-gray-200 rounded-lg p-4 space-y-3"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-medium text-sm">
+                    Log Entry #{index + 1}
+                  </h3>
+                  {bulkLogs.length > 1 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeBulkLogEntry(log.id)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      Remove
+                    </Button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor={`amount-${log.id}`}>Amount *</Label>
+                    <Input
+                      id={`amount-${log.id}`}
+                      type="number"
+                      placeholder="Enter amount"
+                      value={log.amount}
+                      onChange={(e) =>
+                        updateBulkLogEntry(log.id, "amount", e.target.value)
+                      }
+                      step="0.01"
+                      min="0"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor={`asset-${log.id}`}>Asset (Optional)</Label>
+                    <Select
+                      value={log.asset_id || "none"} // Use "none" as fallback instead of empty string
+                      onValueChange={(value) =>
+                        updateBulkLogEntry(
+                          log.id,
+                          "asset_id",
+                          value === "none" ? undefined : value
+                        )
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select asset" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">None</SelectItem>
+                        {order?.assets?.map((asset) => (
+                          <SelectItem key={asset.id} value={asset.id}>
+                            {asset.asset_name} (
+                            {asset.plate_number || "No plate"})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`notes-${log.id}`}>Notes *</Label>
+                  <Input
+                    id={`notes-${log.id}`}
+                    type="text"
+                    placeholder="Enter notes for this log"
+                    value={log.notes}
+                    onChange={(e) =>
+                      updateBulkLogEntry(log.id, "notes", e.target.value)
+                    }
+                  />
+                </div>
+              </div>
+            ))}
+
+            <Button
+              variant="outline"
+              onClick={addBulkLogEntry}
+              className="w-full"
+            >
+              + Add Another Log Entry
+            </Button>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsBulkLogModalOpen(false);
+                setBulkLogs([
+                  {
+                    id: crypto.randomUUID(),
+                    amount: "",
+                    notes: "",
+                  },
+                ]);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateBulkLogs}
+              disabled={
+                isCreatingBulkLogs ||
+                bulkLogs.some((log) => !log.amount || !log.notes)
+              }
+              className="bg-orange hover:bg-orange/90"
+            >
+              {isCreatingBulkLogs
+                ? "Creating..."
+                : `Create ${bulkLogs.length} Log(s)`}
             </Button>
           </DialogFooter>
         </DialogContent>
