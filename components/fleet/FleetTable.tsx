@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import axiosInstance from "@/lib/axios";
 import {
@@ -39,15 +39,22 @@ export function FleetTable() {
   const [searchTerm, setSearchTerm] = useState("");
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [meta, setMeta] = useState({
+    total: 0,
+    page: 1,
+    limit: 10,
+  });
 
   useEffect(() => {
     const fetchBusinesses = async () => {
       setIsLoading(true);
       try {
         const response = await axiosInstance.get<GetBusinessesResponse>(
-          "/fleets/admin/list"
+          `/fleets/admin/list?page=${currentPage}&limit=${meta.limit}`
         );
         setBusinesses(response.data?.data ?? []);
+        setMeta(response.data?.meta ?? { total: 0, page: 1, limit: 10 });
       } catch (error) {
         console.error("Error fetching businesses:", error);
       } finally {
@@ -56,7 +63,7 @@ export function FleetTable() {
     };
 
     fetchBusinesses();
-  }, []);
+  }, [currentPage, meta.limit]);
 
   const shortenId = (id: string) => `bus-${id.split("-")[0]?.slice(0, 5)}`;
 
@@ -80,6 +87,59 @@ export function FleetTable() {
       );
     });
   }, [businesses, searchTerm]);
+
+  const totalPages = Math.ceil(meta.total / meta.limit);
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePageClick = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) {
+          pages.push(i);
+        }
+        pages.push("...");
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push("...");
+        for (let i = totalPages - 3; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        pages.push(1);
+        pages.push("...");
+        pages.push(currentPage - 1);
+        pages.push(currentPage);
+        pages.push(currentPage + 1);
+        pages.push("...");
+        pages.push(totalPages);
+      }
+    }
+
+    return pages;
+  };
 
   return (
     <div>
@@ -141,82 +201,147 @@ export function FleetTable() {
             <p className="text-sm text-gray-500">Fetching businesses...</p>
           </div>
         ) : (
-          <Table>
-            <TableHeader className="w-full max-w-[1074px] mx-auto rounded-3xl bg-[#979797] bg-opacity-20">
-              <TableRow>
-                <TableHead>Business ID</TableHead>
-                <TableHead>Company Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Registered</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredBusinesses.map((business) => (
-                <TableRow key={business.id}>
-                  <TableCell>
-                    <Link
-                      href={`/dashboard/fleet/${business.id}`}
-                      className="hover:text-orange"
-                    >
-                      {shortenId(business.id)}
-                    </Link>
-                  </TableCell>
-
-                  <TableCell>
-                    {business.company_name || business.name}
-                  </TableCell>
-
-                  <TableCell>{business.email}</TableCell>
-
-                  <TableCell>{business.phone}</TableCell>
-
-                  <TableCell>
-                    {business.created_at
-                      ? new Date(business.created_at).toLocaleDateString()
-                      : "—"}
-                  </TableCell>
-
-                  <TableCell>
-                    <span
-                      className={cn(
-                        "inline-flex items-center px-2.5 py-0.5 gap-3 rounded-full text-xs font-medium"
-                      )}
-                    >
-                      <div
-                        className={cn(
-                          "w-[12px] h-[12px] rounded-full",
-                          business.is_verified ? "bg-[#00B69B]" : "bg-[#FCBE2D]"
-                        )}
-                      />
-                      {business.is_verified ? "VERIFIED" : "PENDING"}
-                    </span>
-                  </TableCell>
-
-                  <TableCell>
-                    <Link href={`/dashboard/fleet/${business.id}`}>
-                      <ChevronRight className="h-4 w-4 text-gray-400" />
-                    </Link>
-                  </TableCell>
-                </TableRow>
-              ))}
-
-              {!filteredBusinesses.length && (
+          <>
+            <Table>
+              <TableHeader className="w-full max-w-[1074px] mx-auto rounded-3xl bg-[#979797] bg-opacity-20">
                 <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="text-center py-8 text-sm text-gray-500"
-                  >
-                    {searchTerm
-                      ? `No businesses match "${searchTerm}".`
-                      : "No businesses found."}
-                  </TableCell>
+                  <TableHead>Business ID</TableHead>
+                  <TableHead>Company Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Phone</TableHead>
+                  <TableHead>Registered</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead />
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredBusinesses.map((business) => (
+                  <TableRow key={business.id}>
+                    <TableCell>
+                      <Link
+                        href={`/dashboard/fleet/${business.id}`}
+                        className="hover:text-orange"
+                      >
+                        {shortenId(business.id)}
+                      </Link>
+                    </TableCell>
+
+                    <TableCell>
+                      {business.company_name || business.name}
+                    </TableCell>
+
+                    <TableCell>{business.email}</TableCell>
+
+                    <TableCell>{business.phone}</TableCell>
+
+                    <TableCell>
+                      {business.created_at
+                        ? new Date(business.created_at).toLocaleDateString()
+                        : "—"}
+                    </TableCell>
+
+                    <TableCell>
+                      <span
+                        className={cn(
+                          "inline-flex items-center px-2.5 py-0.5 gap-3 rounded-full text-xs font-medium"
+                        )}
+                      >
+                        <div
+                          className={cn(
+                            "w-[12px] h-[12px] rounded-full",
+                            business.is_verified
+                              ? "bg-[#00B69B]"
+                              : "bg-[#FCBE2D]"
+                          )}
+                        />
+                        {business.is_verified ? "VERIFIED" : "PENDING"}
+                      </span>
+                    </TableCell>
+
+                    <TableCell>
+                      <Link href={`/dashboard/fleet/${business.id}`}>
+                        <ChevronRight className="h-4 w-4 text-gray-400" />
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                ))}
+
+                {!filteredBusinesses.length && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={7}
+                      className="text-center py-8 text-sm text-gray-500"
+                    >
+                      {searchTerm
+                        ? `No businesses match "${searchTerm}".`
+                        : "No businesses found."}
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between mt-6 px-2">
+                <div className="text-sm text-gray-600">
+                  Showing {(currentPage - 1) * meta.limit + 1} to{" "}
+                  {Math.min(currentPage * meta.limit, meta.total)} of{" "}
+                  {meta.total} businesses
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handlePreviousPage}
+                    disabled={currentPage === 1}
+                    className={cn(
+                      "p-2 rounded-lg border transition-colors",
+                      currentPage === 1
+                        ? "border-gray-200 text-gray-400 cursor-not-allowed"
+                        : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                    )}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+
+                  <div className="flex items-center gap-1">
+                    {getPageNumbers().map((page, index) => (
+                      <button
+                        key={index}
+                        onClick={() =>
+                          typeof page === "number" && handlePageClick(page)
+                        }
+                        disabled={page === "..."}
+                        className={cn(
+                          "min-w-[36px] h-9 px-3 rounded-lg text-sm font-medium transition-colors",
+                          page === currentPage
+                            ? "bg-orange text-white"
+                            : page === "..."
+                            ? "cursor-default text-gray-400"
+                            : "text-gray-700 hover:bg-gray-50 border border-gray-200"
+                        )}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages}
+                    className={cn(
+                      "p-2 rounded-lg border transition-colors",
+                      currentPage === totalPages
+                        ? "border-gray-200 text-gray-400 cursor-not-allowed"
+                        : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                    )}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
